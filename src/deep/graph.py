@@ -12,6 +12,7 @@ class Op(ABC):
         pass
 
 
+# TODO: refactor logic to better handle broadcasting
 class Add(Op):
     def __init__(self, a1, a2, sub=False):
         self.a1_np, self.a2_np = (

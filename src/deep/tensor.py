@@ -67,7 +67,7 @@ class Tensor(np.ndarray):
             return Tensor(result_np, requires_grad=False)
 
         # if requires_grad, construct graph
-        # TODO: implement gradient computation for other methods
+        # TODO: implement gradient computation for other methods / ufuncs
         if ufunc is np.add:
             if method == "__call__":
                 res = Tensor(result_np, dep=Add(*inputs))

@@ -3,8 +3,6 @@ import numpy as np
 
 from deep import *
 
-# TODO: test more types and shapes (including broadcasting)
-
 
 def try_ufunc_call(ufunc, *args_np):
     args = [Tensor(i) if isinstance(i, np.ndarray) else i for i in args_np]

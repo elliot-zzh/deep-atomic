@@ -104,7 +104,7 @@ def test_div():
     func2 = lambda x: sum(sum(a1 / x, axis=-1), axis=-1)
 
     assert_close(numerical_grad(func1, a1).to_np(), a1.grad)
-    assert_close(numerical_grad(func2, a2).to_np(), a2.grad)
+    assert_close(numerical_grad(func2, a2).to_np(), a2.grad, eps=1e-6)
 
     # test with broadcast
     a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
