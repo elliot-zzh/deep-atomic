@@ -25,16 +25,21 @@ class Add(Op):
 
 
 class Mul(Op):
-    def __init__(self, a1: Tensor, a2: Tensor, div=False):
+    def __init__(self, a1: Tensor, a2: Tensor):
         self.a1, self.a2 = a1, a2
-        self.div = div
 
     def grad(self, grad):
         self.a1.backward(grad * self.a2.to_np())
-        if self.div:
-            self.a2.backward(-1 * self.a1.to_np() / (self.a2.to_np() ** 2) * grad)
-        else:
-            self.a2.backward(self.a1.to_np() * grad)
+        self.a2.backward(self.a1.to_np() * grad)
+
+
+class Div(Op):
+    def __init__(self, a1: Tensor, a2: Tensor):
+        self.a1, self.a2 = a1, a2
+
+    def grad(self, grad):
+        self.a1.backward(grad * self.a2.to_np())
+        self.a2.backward(-1 * self.a1.to_np() / (self.a2.to_np() ** 2) * grad)
 
 
 class MatMul(Op):

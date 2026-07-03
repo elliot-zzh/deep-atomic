@@ -3,6 +3,8 @@ import numpy as np
 
 from deep import *
 
+# TODO: test more types and shapes (including broadcasting)
+
 
 def test_add():
     a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)

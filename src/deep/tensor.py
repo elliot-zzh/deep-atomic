@@ -70,7 +70,7 @@ class Tensor(np.ndarray):
         elif ufunc is np.multiply:
             res = Tensor(result_np, dep=Mul(*inputs))
         elif ufunc is np.divide:
-            res = Tensor(result_np, dep=Mul(*inputs, div=True))
+            res = Tensor(result_np, dep=Div(*inputs))
         elif ufunc is np.matmul:
             res = Tensor(result_np, dep=MatMul(*inputs))
         elif ufunc is np.exp:
