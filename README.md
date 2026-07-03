@@ -1,12 +1,10 @@
-# my-package
+# deep
 
-A short description of your project
+> not completed yet
 
 ## Installation
 
-```bash
-pip install my-package
-```
+> not completed yet
 
 ## Development
 

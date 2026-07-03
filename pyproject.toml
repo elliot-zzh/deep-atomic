@@ -3,21 +3,24 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "my-package"
+name = "deep"
 version = "0.1.0"
 description = "A short description of your project"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [
-    { name = "Your Name", email = "you@example.com" },
+    { name = "Your Name", email = "you@example.com" }, # yet to complete
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = []   # 在此添加项目依赖
+dependencies = [
+    "numpy>=1.24.4",
+    "pytest>=8.3.5",
+] 
 
 [project.optional-dependencies]
 dev = [
@@ -38,4 +41,4 @@ fixable = ["I"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
+python_files = "*_test.py"
