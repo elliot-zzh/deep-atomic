@@ -4,20 +4,10 @@ from .graph import *
 
 
 def exp(input: Tensor):
-    input_np = input.to_np()
-    # TODO: requires refactorization
-    res = np.exp(input_np).view(Tensor)
-    if input.requires_grad:
-        res.requires_grad = True
-        res.dep = Exp(input)
-    return res
+    # TODO: handle other methods for ufunc (or use torch like api?)
+    return input.__array_ufunc__(np.exp, "__call__", input)
 
 
 def log(input: Tensor):
-    input_np = input.to_np()
-    # TODO: requires refactorization
-    res = np.log(input_np).view(Tensor)
-    if input.requires_grad:
-        res.requires_grad = True
-        res.dep = Log(input)
-    return res
+    # TODO: handle other methods for ufunc (or use torch like api?)
+    return input.__array_ufunc__(np.log, "__call__", input)

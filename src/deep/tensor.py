@@ -64,15 +64,19 @@ class Tensor(np.ndarray):
 
         # if requires_grad, construct graph
         if ufunc is np.add:
-            res = Tensor(result_np, requires_grad=True, dep=Add(*inputs))
+            res = Tensor(result_np, dep=Add(*inputs))
         elif ufunc is np.subtract:
-            res = Tensor(result_np, requires_grad=True, dep=Add(*inputs, sub=True))
+            res = Tensor(result_np, dep=Add(*inputs, sub=True))
         elif ufunc is np.multiply:
-            res = Tensor(result_np, requires_grad=True, dep=Mul(*inputs))
+            res = Tensor(result_np, dep=Mul(*inputs))
         elif ufunc is np.divide:
-            res = Tensor(result_np, requires_grad=True, dep=Mul(*inputs, div=True))
+            res = Tensor(result_np, dep=Mul(*inputs, div=True))
         elif ufunc is np.matmul:
-            res = Tensor(result_np, requires_grad=True, dep=MatMul(*inputs))
+            res = Tensor(result_np, dep=MatMul(*inputs))
+        elif ufunc is np.exp:
+            res = Tensor(result_np, dep=Exp(*inputs))
+        elif ufunc is np.log:
+            res = Tensor(result_np, dep=Log(*inputs))
         else:
             return NotImplemented
 
