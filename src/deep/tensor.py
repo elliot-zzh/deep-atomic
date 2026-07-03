@@ -1,22 +1,23 @@
 import numpy as np
 
 class Tensor(np.ndarray):
-    def __new__(cls, *args, requires_grad=True, dep=None, **kwargs):
-        if args and isinstance(args[0], np.ndarray):
-            dtype, order = kwargs.get('dtype', None), kwargs.get('order', 'C')
-            return np.asarray(args[0], dtype=dtype, order=order).view(cls) # convert from ndarray
+    def __new__(subtype, arg0, # arg0: ndarray or shape
+                requires_grad=True, dep=None, # for backward
+                dtype=np.float64, buffer=None, offset=0,
+                strides=None, order=None):
+        if isinstance(arg0, np.ndarray):
+            obj = arg0.view(subtype) # convert from ndarray
         else:
-            return np.array(*args, **kwargs).view(cls)
+            obj = super().__new__(subtype, arg0, dtype,
+                              buffer, offset, strides, order)
         
-    def __init__(self, *args, grad=True, dep=None, **kwargs):
-        self.requires_grad = grad
-        self.grad = None # gradient storage
-        self.dep = None # dependency
+        obj.requires_grad, obj.dep = requires_grad, dep
+        obj.grad = None
         
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self.requires_grad = getattr(obj, 'requires_grad', False)
+        self.requires_grad = getattr(obj, 'requires_grad', True)
         self.dep = getattr(obj, 'dep', None)
         
     def to_np(self):
