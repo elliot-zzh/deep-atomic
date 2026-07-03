@@ -117,3 +117,11 @@ class Sum(Op):
             self.input.backward(grad)
         else:
             self.input.backward(grad.expand_dims(self.axis))
+
+
+class Abs(Op):
+    def __init__(self, input: Tensor):
+        self.input = input
+
+    def grad(self, grad):
+        grad = np.where(grad < 0, -grad, grad)

@@ -118,6 +118,13 @@ def test_log():
     assert (res.to_np() == np.log(input_np)).all()
 
 
+def test_abs():
+    input_np = np.random.rand(3, 4) - 0.5
+    input = Tensor(input_np)
+    res = abs(input)
+    assert (res.to_np() == np.abs(input_np)).all()
+
+
 def test_sum():
     # test full reduction
     input_np = np.random.rand(3, 4)

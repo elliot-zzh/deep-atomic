@@ -38,10 +38,13 @@ class Tensor(np.ndarray):
             return
         if grad is None:
             # TODO: support Vector-Jacobian Product like pytorch
-            assert np.size == 1  # must be scalar
-            self.grad = np.array(1)
+            assert self.size == 1  # must be scalar
+            self.grad = np.array([1.0])
+        # otherwise receive gradient from graph
+        elif grad.size == 1:
+            self.grad = np.tile(grad, self.shape)
         else:
-            self.grad = grad  # receive gradient from graph
+            self.grad = grad
 
         if self.dep is not None:
             self.dep.grad(self.grad)  # trigger graph
@@ -69,7 +72,9 @@ class Tensor(np.ndarray):
             if method == "__call__":
                 res = Tensor(result_np, dep=Add(*inputs))
             elif method == "reduce":
-                res = Tensor(result_np, dep=Sum(*inputs, **kwargs))
+                axis = getattr(kwargs, "axis", None)
+                keepdims = getattr(kwargs, "keepdims", False)
+                res = Tensor(result_np, dep=Sum(*inputs, axis=axis, keepdims=keepdims))
             else:
                 return NotImplemented
         elif ufunc is np.subtract:
@@ -92,6 +97,8 @@ class Tensor(np.ndarray):
             res = Tensor(result_np, dep=Div(Log(*inputs), np.log(10)))
         elif ufunc is np.pow:
             res = Tensor(result_np, dep=Pow(*inputs))
+        elif ufunc is np.abs:
+            res = Tensor(result_np, dep=Abs(*inputs))
         else:
             return NotImplemented
 
