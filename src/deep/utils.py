@@ -5,4 +5,6 @@ def detect_broadcast_dim(from_, to_):
             detected.append((i + len(to_), False))
         elif from_[i] == 1 and to_[i] != 1:
             detected.append((i + len(to_), True))  # True tp keepdims
+        elif from_[i] != to_[i]:
+            raise ValueError(f"{from_} cannot be broadcasted to target shape {to_}")
     return detected

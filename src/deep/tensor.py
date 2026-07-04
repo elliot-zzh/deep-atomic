@@ -43,9 +43,13 @@ class Tensor(np.ndarray):
         # otherwise receive gradient from graph
         elif grad.size == 1:
             self.grad = np.tile(grad, self.shape)
-        else:
+        elif grad.shape == self.shape:
             self.grad = grad
-
+        elif grad.shape != self.shape:
+            self.grad = grad
+            dim_to_reduce = detect_broadcast_dim(self.shape, grad.shape)
+            for dim, keepdims in dim_to_reduce:
+                self.grad = self.grad.sum(axis=dim, keepdims=keepdims)
         if self.dep is not None:
             self.dep.grad(self.grad)  # trigger graph
 

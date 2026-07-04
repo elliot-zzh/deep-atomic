@@ -3,8 +3,13 @@ import numpy as np
 from deep import *
 
 
-def assert_close(baseline, eval, eps=1e-8):
-    assert np.logical_and(baseline - eps < eval, eval < baseline + eps).all()
+def assert_close(actual, expected, rtol=1e-05, atol=1e-08):
+    delta = np.abs(actual - expected)
+    tol = atol + rtol * np.abs(expected)
+    if np.isscalar(delta):
+        assert delta <= tol
+    else:
+        assert (delta <= tol).all()
 
 
 def numerical_grad(func, input_, eps=1e-5, use_log=False):
