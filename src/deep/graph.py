@@ -67,9 +67,9 @@ class MatMul(Op):
 
     def grad(self, grad):
         if self.a1 is not None:
-            self.a1.backward(grad @ self.a2.to_np().T)
+            self.a1.backward(grad @ self.a2.to_np().swapaxes(-1, -2))
         if self.a2 is not None:
-            self.a2.backward(self.a1.to_np().T @ grad)
+            self.a2.backward(self.a1.to_np().swapaxes(-1, -2) @ grad)
 
 
 class Exp(Op):

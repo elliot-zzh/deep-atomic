@@ -12,6 +12,7 @@ def assert_close(actual, expected, rtol=1e-05, atol=1e-08):
         assert (delta <= tol).all()
 
 
+# TODO: more to implement on this utility. handle multi-input func, handle vector-valued output
 def numerical_grad(func, input_, eps=1e-5, use_log=False):
     original_shape = input_.shape
     if isinstance(input_, Tensor):
