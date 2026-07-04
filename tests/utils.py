@@ -13,7 +13,7 @@ def assert_close(actual, expected, rtol=1e-05, atol=1e-08):
 
 
 # TODO: more to implement on this utility. handle multi-input func, handle vector-valued output
-def numerical_grad(func, input_, eps=1e-5, use_log=False):
+def numerical_grad(func, input_, eps=1e-5):
     original_shape = input_.shape
     if isinstance(input_, Tensor):
         input_.requires_grad = False
@@ -27,14 +27,7 @@ def numerical_grad(func, input_, eps=1e-5, use_log=False):
     np.fill_diagonal(X_minus, X_minus.diagonal() - eps)
     X_minus = X_minus.reshape([input_.size] + list(original_shape))
 
-    delta = func(X_plus) - func(X_minus)
-
     # central difference
-    if use_log:
-        res = (delta / (np.abs(delta) + 1e-16)) * np.exp(
-            np.log(np.abs(delta)) - np.log(eps * 2)
-        )
-    else:
-        res = delta / (eps * 2)
+    res = (func(X_plus) - func(X_minus)) / (eps * 2)
 
     return res.reshape(original_shape)
