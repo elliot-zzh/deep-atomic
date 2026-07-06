@@ -145,7 +145,7 @@ def test_exp():
     res.backward()
 
     func = lambda x: sum(exp(x), axis=-1)
-    assert_close(numerical_grad(func, input), input.grad)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
 
 
 def test_log():
@@ -155,7 +155,7 @@ def test_log():
     res.backward()
 
     func = lambda x: sum(log(x), axis=-1)
-    assert_close(numerical_grad(func, input), input.grad)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
 
 
 def test_pow():

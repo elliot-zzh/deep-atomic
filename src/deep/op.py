@@ -27,9 +27,7 @@ def max(input: Tensor, axis=None, keepdims=False):
         np.max(input.to_np(), axis=axis, keepdims=keepdims), requires_grad=False
     )
     if input.requires_grad:
-        # FIXME: wrap the following two lines to ensure safety modification of requires_grad
         res.requires_grad = True
-        res.grad = np.zeros(res.shape)
         if axis == None:
             # TODO: distribute gradient flow evenly
             pass
@@ -44,9 +42,7 @@ def min(input: Tensor, axis=None, keepdims=False):
         np.min(input.to_np(), axis=axis, keepdims=keepdims), requires_grad=False
     )
     if input.requires_grad:
-        # FIXME: wrap the following two lines to ensure safety modification of requires_grad
         res.requires_grad = True
-        res.grad = np.zeros(res.shape)
         if axis == None:
             # TODO: distribute gradient flow evenly
             pass

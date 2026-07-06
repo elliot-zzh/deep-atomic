@@ -23,12 +23,21 @@ class Tensor(np.ndarray):
             obj = super().__new__(subtype, arg0, dtype, buffer, offset, strides, order)
 
         obj.requires_grad, obj.dep = requires_grad, dep
-        if requires_grad:
-            obj.grad = np.zeros(obj.shape)
-        else:
-            obj.grad = None
-        obj.depended_count = [0]  # for topo sorting in backward
+        obj.depended_count = 0  # for topo sorting in backward
         return obj
+
+    @property
+    def requires_grad(self):
+        return self._requires_grad
+
+    @requires_grad.setter
+    def requires_grad(self, value: bool):
+        self._requires_grad = value
+        if value:
+            # IMPORTANT: will reset gradient to zero
+            self.grad = np.zeros(self.shape)
+        else:
+            self.grad = None
 
     def __array_finalize__(self, obj):
         if obj is None:
@@ -44,8 +53,6 @@ class Tensor(np.ndarray):
     def backward(self, grad=None):
         if not self.requires_grad:
             return
-        if self.grad is None:
-            raise RuntimeError("Gradient not initialized")
         if grad is None:  # source point of compute graph
             # TODO: support Vector-Jacobian Product like pytorch
             assert self.size == 1  # must be scalar
@@ -65,8 +72,8 @@ class Tensor(np.ndarray):
             raise ValueError(
                 f"Invalid gradient shape. Expected {self.shape}, but got {grad.shape}"
             )
-        self.depended_count[0] -= 1
-        if self.dep is not None and self.depended_count[0] <= 0:
+        self.depended_count -= 1
+        if self.dep is not None and self.depended_count <= 0:
             self.dep.backward(self.grad)  # trigger graph
 
     # override operations

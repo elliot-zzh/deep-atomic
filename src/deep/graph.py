@@ -15,7 +15,7 @@ class Op(ABC):
 class SingleOp(Op):
     def __init__(self, input: Tensor):
         self.input = input
-        self.input.depended_count[0] += 1
+        self.input.depended_count += 1
 
 
 class TwoOp(Op):
@@ -25,9 +25,9 @@ class TwoOp(Op):
         )
         self.a1, self.a2 = (i if isinstance(i, Tensor) else None for i in [a1, a2])
         if isinstance(self.a1, Tensor):
-            self.a1.depended_count[0] += 1
+            self.a1.depended_count += 1
         if isinstance(self.a2, Tensor):
-            self.a2.depended_count[0] += 1
+            self.a2.depended_count += 1
 
 
 class Add(TwoOp):

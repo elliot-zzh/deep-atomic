@@ -15,8 +15,6 @@ def assert_close(expected, actual, rtol=5e-05, atol=1e-08):
 # TODO: more to implement on this utility. handle multi-input func, handle vector-valued output
 def numerical_grad(func, input_, eps=1e-5):
     original_shape = input_.shape
-    if isinstance(input_, Tensor):
-        input_.requires_grad = False
     input_ = input_.reshape(-1)
 
     X_plus = np.tile(input_, (input_.size, 1))  # Copy x0 into n rows
