@@ -174,11 +174,11 @@ def test_pow():
 def test_gradient_from_multiple_paths():
     input_np = np.random.rand(10)
     input = Tensor(input_np)
-    res = sum(input + input * input)
+    res = sum(input + input * input / exp(input))
     res.backward()
 
-    func = lambda x: sum(x + x * x, axis=-1)
-    assert_close(numerical_grad(func, input), input.grad)
+    func = lambda x: sum(x + x * x / exp(x), axis=-1)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
 
 
 def test_max():
@@ -188,7 +188,7 @@ def test_max():
     res.backward()
 
     func = lambda x: sum(max(x, axis=-1), axis=-1)
-    assert_close(numerical_grad(func, input), input.grad)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
 
 
 def test_min():
@@ -198,11 +198,30 @@ def test_min():
     res.backward()
 
     func = lambda x: sum(min(x, axis=-1), axis=-1)
-    assert_close(numerical_grad(func, input), input.grad)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
 
 
-"""
-def test_composition():
-    return True
-    
-"""
+def test_softmax():
+    input_np = np.random.rand(3, 4)
+    weight_np = np.random.rand(3, 4)
+    input = Tensor(input_np)
+    weight = Tensor(weight_np)
+    res = sum(
+        softmax(input, axis=-1) * weight
+    )  # must multiply a weight so that res != 3
+    res.backward()
+
+    func1 = lambda x: sum(sum(softmax(x, axis=-1) * weight, axis=-1), axis=-1)
+    assert_close(numerical_grad(func1, input).to_np(), input.grad)
+    func2 = lambda x: sum(sum(softmax(input, axis=-1) * x, axis=-1), axis=-1)
+    assert_close(numerical_grad(func2, weight).to_np(), weight.grad)
+
+
+def test_log_softmax():
+    input_np = np.random.rand(3, 4)
+    input = Tensor(input_np)
+    res = sum(log_softmax(input, axis=-1))
+    res.backward()
+
+    func = lambda x: sum(sum(log_softmax(x, axis=-1), axis=-1), axis=-1)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)

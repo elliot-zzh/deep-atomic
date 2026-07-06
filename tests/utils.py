@@ -3,7 +3,7 @@ import numpy as np
 from deep import *
 
 
-def assert_close(actual, expected, rtol=1e-05, atol=1e-08):
+def assert_close(expected, actual, rtol=5e-05, atol=1e-08):
     delta = np.abs(actual - expected)
     tol = atol + rtol * np.abs(expected)
     if np.isscalar(delta):

@@ -1,5 +1,7 @@
 import numpy as np
 
+from .utils import *
+
 
 class Tensor(np.ndarray):
     def __new__(
@@ -21,7 +23,11 @@ class Tensor(np.ndarray):
             obj = super().__new__(subtype, arg0, dtype, buffer, offset, strides, order)
 
         obj.requires_grad, obj.dep = requires_grad, dep
-        obj.grad = None
+        if requires_grad:
+            obj.grad = np.zeros(obj.shape)
+        else:
+            obj.grad = None
+        obj.depended_count = [0]  # for topo sorting in backward
         return obj
 
     def __array_finalize__(self, obj):
@@ -29,6 +35,8 @@ class Tensor(np.ndarray):
             return
         self.requires_grad = getattr(obj, "requires_grad", False)
         self.dep = getattr(obj, "dep", None)
+        self.depended_count = getattr(obj, "depended_cound", [0])
+        self.grad = getattr(obj, "grad", None)
 
     def to_np(self):
         return self.view(np.ndarray)
@@ -37,15 +45,15 @@ class Tensor(np.ndarray):
         if not self.requires_grad:
             return
         if self.grad is None:
-            self.grad = np.zeros(self.shape)
-        if grad is None:
+            raise RuntimeError("Gradient not initialized")
+        if grad is None:  # source point of compute graph
             # TODO: support Vector-Jacobian Product like pytorch
             assert self.size == 1  # must be scalar
             self.grad += 1
         # otherwise receive gradient from graph
         elif grad.size == 1:
             self.grad += np.tile(grad, self.shape)
-        elif grad.shape == self.shape:
+        elif is_broadcastable(grad.shape, self.shape):
             self.grad += grad
         elif grad.shape != self.shape:
             grad_ = grad
@@ -53,7 +61,12 @@ class Tensor(np.ndarray):
             for dim, keepdims in dim_to_reduce:
                 grad_ = grad_.sum(axis=dim, keepdims=keepdims)
             self.grad += grad_
-        if self.dep is not None:
+        else:
+            raise ValueError(
+                f"Invalid gradient shape. Expected {self.shape}, but got {grad.shape}"
+            )
+        self.depended_count[0] -= 1
+        if self.dep is not None and self.depended_count[0] <= 0:
             self.dep.backward(self.grad)  # trigger graph
 
     # override operations
@@ -81,7 +94,7 @@ class Tensor(np.ndarray):
             elif method == "reduce":
                 axis = getattr(kwargs, "axis", None)
                 keepdims = getattr(kwargs, "keepdims", False)
-                res = Tensor(result_np, dep=ReductionWrapper(*inputs, axis, keepdims))
+                res = Tensor(result_np, dep=Sum(*inputs, axis, keepdims))
             else:
                 return NotImplemented
         elif ufunc is np.subtract:

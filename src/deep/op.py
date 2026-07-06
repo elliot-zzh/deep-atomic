@@ -27,19 +27,15 @@ def max(input: Tensor, axis=None, keepdims=False):
         np.max(input.to_np(), axis=axis, keepdims=keepdims), requires_grad=False
     )
     if input.requires_grad:
+        # FIXME: wrap the following two lines to ensure safety modification of requires_grad
         res.requires_grad = True
+        res.grad = np.zeros(res.shape)
         if axis == None:
             # TODO: distribute gradient flow evenly
             pass
         else:
             indices = np.argmax(input.to_np(), axis=axis, keepdims=True)
-            baseline_expansion_axis = list(range(input.ndim))
-            baseline_expansion_axis.pop(axis)
-            baseline_indices = np.expand_dims(
-                np.arange(input.shape[axis]), axis=baseline_expansion_axis
-            )
-            mask = indices == baseline_indices
-            res.dep = ReductionWrapper(Mask(input, mask), axis, keepdims)
+            res.dep = MinMax(input, indices, axis, keepdims)
     return res
 
 
@@ -48,19 +44,15 @@ def min(input: Tensor, axis=None, keepdims=False):
         np.min(input.to_np(), axis=axis, keepdims=keepdims), requires_grad=False
     )
     if input.requires_grad:
+        # FIXME: wrap the following two lines to ensure safety modification of requires_grad
         res.requires_grad = True
+        res.grad = np.zeros(res.shape)
         if axis == None:
             # TODO: distribute gradient flow evenly
             pass
         else:
             indices = np.argmin(input.to_np(), axis=axis, keepdims=True)
-            baseline_expansion_axis = list(range(input.ndim))
-            baseline_expansion_axis.pop(axis)
-            baseline_indices = np.expand_dims(
-                np.arange(input.shape[axis]), axis=baseline_expansion_axis
-            )
-            mask = indices == baseline_indices
-            res.dep = ReductionWrapper(Mask(input, mask), axis, keepdims)
+            res.dep = MinMax(input, indices, axis, keepdims)
     return res
 
 
@@ -80,9 +72,9 @@ def argmin(input: Tensor, axis=-1, keepdims=False):
 
 def softmax(input: Tensor, axis=-1):
     input = exp(input - max(input, axis=axis, keepdims=True))
-    return input / sum(input, axis=axis)
+    return input / sum(input, axis=axis, keepdims=True)
 
 
 def log_softmax(input: Tensor, axis=-1):
     input = input - max(input, axis=axis, keepdims=True)
-    return input - log(sum(exp(input), axis=axis))
+    return input - log(sum(exp(input), axis=axis, keepdims=True))
