@@ -42,9 +42,10 @@ class Tensor(np.ndarray):
     def __array_finalize__(self, obj):
         if obj is None:
             return
-        self.requires_grad = getattr(obj, "requires_grad", False)
+        # FIXME: ? when creating a view, we cannot rely on python's default reference mechanism. must share identical depended_count across views. should depended_count be a list?
+        self.requires_grad = getattr(obj, "requires_grad", True)
         self.dep = getattr(obj, "dep", None)
-        self.depended_count = getattr(obj, "depended_cound", [0])
+        self.depended_count = getattr(obj, "depended_cound", 0)
         self.grad = getattr(obj, "grad", None)
 
     def to_np(self):
