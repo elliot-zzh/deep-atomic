@@ -95,3 +95,15 @@ def softmax(input: Tensor, axis=-1):
 def log_softmax(input: Tensor, axis=-1):
     input = input - max(input, axis=axis, keepdims=True)
     return input - log(sum(exp(input), axis=axis, keepdims=True))
+
+
+def reshape(input: Tensor, target_shape):
+    return input.reshape(*target_shape)
+
+
+def squeeze(input: Tensor, axis):
+    return input.squeeze(axis)
+
+
+def expand_dims(input: Tensor, axis):
+    return input.expand_dims(axis)

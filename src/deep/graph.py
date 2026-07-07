@@ -163,3 +163,30 @@ class MinMax(SingleOp):
             )
             mask = self.indices == baseline_indices
         self.input.backward(np.where(mask, grad, 0.0))
+
+
+class Reshape(SingleOp):
+    def __init__(self, input: Tensor, from_):
+        super().__init__(input)
+        self.from_ = from_
+
+    def backward(self, grad):
+        self.input.backward(grad.reshape(self.from_))
+
+
+class Squeeze(SingleOp):
+    def __init__(self, input: Tensor, axis):
+        super().__init__(input)
+        self.axis = axis
+
+    def backward(self, grad):
+        self.input.backward(np.expand_dims(grad, self.axis))
+
+
+class ExpandDims(SingleOp):
+    def __init__(self, input: Tensor, axis):
+        super().__init__(input)
+        self.axis = axis
+
+    def backward(self, grad):
+        self.input.backward(grad.squeeze(self.axis))

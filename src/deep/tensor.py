@@ -125,12 +125,33 @@ class Tensor(np.ndarray):
             res = Tensor(result_np, dep=Div(Log(*inputs), np.log(10)))
         elif ufunc is np.pow:
             res = Tensor(result_np, dep=Pow(*inputs))
+        elif ufunc is np.square:
+            res = Tensor(result_np, dep=Pow(*inputs, 2))
         elif ufunc is np.abs:
             res = Tensor(result_np, dep=Abs(*inputs))
         else:
             return NotImplemented
 
         return res
+
+    def reshape(self, *target_shape):
+        return Tensor(
+            super().reshape(*target_shape),
+            requires_grad=True,
+            dep=Reshape(self, self.shape),
+        )
+
+    def squeeze(self, axis):
+        return Tensor(
+            super().squeeze(axis), requires_grad=True, dep=Squeeze(self, axis)
+        )
+
+    def expand_dims(self, axis):
+        return Tensor(
+            np.expand_dims(super(), axis),
+            requires_grad=True,
+            dep=ExpandDims(self, axis),
+        )
 
 
 from .graph import *  # avoid looped dependencies

@@ -321,3 +321,43 @@ def test_log_softmax():
 
     func = lambda x: sum(sum(log_softmax(x, axis=-1), axis=-1), axis=-1)
     assert_close(numerical_grad(func, input).to_np(), input.grad)
+
+
+def test_reshape():
+    input_np = np.random.rand(2, 6)
+    input = Tensor(input_np)
+    res = sum(softmax((input**2 + input).reshape(3, 4), axis=-1))
+    res.backward()
+
+    func = lambda x: sum(sum(softmax((x**2 + x).reshape(-1, 3, 4)), axis=-1), axis=-1)
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
+
+
+def test_squeeze():
+    input_np = np.random.rand(2, 1, 3)
+    input = Tensor(input_np)
+    res = ((input.squeeze(axis=1) ** 2) + input.squeeze(axis=1)).sum()
+    res.backward()
+
+    func = lambda x: sum(
+        sum(((x.squeeze(axis=2) ** 2) + x.squeeze(axis=2)), axis=-1), axis=-1
+    )
+    assert_close(numerical_grad(func, input).to_np(), input.grad)
+
+
+def test_expand_dims():
+    input_np = np.random.rand(2, 3)
+    input = Tensor(input_np)
+    res = ((input.expand_dims(axis=1) ** 2) + input.expand_dims(axis=1)).sum()
+    res.backward()
+
+    func = lambda x: sum(
+        sum(
+            sum(
+                ((np.expand_dims(x, axis=2) ** 2) + np.expand_dims(x, axis=2)), axis=-1
+            ),
+            axis=-1,
+        ),
+        axis=-1,
+    )
+    assert_close(numerical_grad(func, input).to_np(), input.grad)

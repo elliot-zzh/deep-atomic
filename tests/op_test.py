@@ -123,6 +123,27 @@ def test_abs():
     assert (res.to_np() == np.abs(input_np)).all()
 
 
+def test_reshape():
+    input_np = np.random.rand(2, 3, 4)
+    input = Tensor(input_np)
+    res = input.reshape(6, 4)
+    assert (res.to_np() == np.reshape(input_np, (6, 4))).all()
+
+
+def test_squeeze():
+    input_np = np.random.rand(1, 3, 1, 4, 1)
+    input = Tensor(input_np)
+    res = input.squeeze(axis=(0, 2, 4))
+    assert (res.to_np() == np.squeeze(input_np, axis=(0, 2, 4))).all()
+
+
+def test_expand_dims():
+    input_np = np.random.rand(3, 4)
+    input = Tensor(input_np)
+    res = input.expand_dims(axis=0)
+    assert (res.to_np() == np.expand_dims(input_np, axis=0)).all()
+
+
 def test_sum():
     input_np = np.random.rand(3, 4)
     input = Tensor(input_np)
