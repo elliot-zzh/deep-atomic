@@ -52,11 +52,10 @@ def max(input: Tensor, axis=None, keepdims=False):
     if input.requires_grad:
         res.requires_grad = True
         if axis == None:
-            # TODO: distribute gradient flow evenly
-            pass
+            res.dep = MinMax(input, None, keepdims, full_red_value=res.to_np())
         else:
             indices = np.argmax(input.to_np(), axis=axis, keepdims=True)
-            res.dep = MinMax(input, indices, axis, keepdims)
+            res.dep = MinMax(input, axis, keepdims, indices=indices)
     return res
 
 
@@ -67,11 +66,10 @@ def min(input: Tensor, axis=None, keepdims=False):
     if input.requires_grad:
         res.requires_grad = True
         if axis == None:
-            # TODO: distribute gradient flow evenly
-            pass
+            res.dep = MinMax(input, None, keepdims, full_red_value=res.to_np())
         else:
             indices = np.argmin(input.to_np(), axis=axis, keepdims=True)
-            res.dep = MinMax(input, indices, axis, keepdims)
+            res.dep = MinMax(input, axis, keepdims, indices=indices)
     return res
 
 

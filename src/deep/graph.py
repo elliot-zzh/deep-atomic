@@ -130,21 +130,36 @@ class Abs(SingleOp):
 
 
 class MinMax(SingleOp):
-    def __init__(self, input: Tensor, indices: Tensor, axis, keepdims):
+    def __init__(
+        self, input: Tensor, axis, keepdims, indices=None, full_red_value=None
+    ):
         super().__init__(input)
-        self.indices = indices  # result of argmin / argmax
+        self.indices = indices  # result of argmin / argmax. when axis is not None
         self.axis, self.keepdims = axis, keepdims
+        self.full_red_value = full_red_value  # for faster compute when axis is None
+        if axis is None:
+            assert full_red_value is not None
+        else:
+            assert indices is not None
 
     def backward(self, grad):
-        if not self.keepdims:
-            tile_reps = [1] * self.input.ndim
-            tile_reps[self.axis] = self.input.shape[self.axis]
-            grad = np.expand_dims(grad, axis=self.axis)
-            grad = np.tile(grad, tile_reps)
-        baseline_expansion_axis = list(range(self.input.ndim))
-        baseline_expansion_axis.pop(self.axis)
-        baseline_indices = np.expand_dims(
-            np.arange(self.input.shape[self.axis]), axis=baseline_expansion_axis
-        )
-        mask = self.indices == baseline_indices
+        if self.axis is None:
+            if not self.keepdims:
+                grad = np.tile(grad, self.input.shape)
+            mask = self.input.to_np() == self.full_red_value
+            grad /= np.count_nonzero(
+                mask
+            )  # distribute gradient evenly across max values. following pytorch implementation
+        else:
+            if not self.keepdims:
+                tile_reps = [1] * self.input.ndim
+                tile_reps[self.axis] = self.input.shape[self.axis]
+                grad = np.expand_dims(grad, axis=self.axis)
+                grad = np.tile(grad, tile_reps)
+            baseline_expansion_axis = list(range(self.input.ndim))
+            baseline_expansion_axis.pop(self.axis)
+            baseline_indices = np.expand_dims(
+                np.arange(self.input.shape[self.axis]), axis=baseline_expansion_axis
+            )
+            mask = self.indices == baseline_indices
         self.input.backward(np.where(mask, grad, 0.0))

@@ -270,6 +270,14 @@ def test_max():
     func = lambda x: sum(max(x, axis=-1), axis=-1)
     assert_close(numerical_grad(func, input).to_np(), input.grad)
 
+    # test full reduction
+    input_np = np.array([2.0, 2.0, 3.0, 3.0])
+    input = Tensor(input_np)
+    res = max(input)
+    res.backward()
+    expected_grad = np.array([0.0, 0.0, 0.5, 0.5])
+    assert_close(expected_grad, input.grad)
+
 
 def test_min():
     input_np = np.random.rand(3, 4)
@@ -279,6 +287,14 @@ def test_min():
 
     func = lambda x: sum(min(x, axis=-1), axis=-1)
     assert_close(numerical_grad(func, input).to_np(), input.grad)
+
+    # test full reduction
+    input_np = np.array([2.0, 2.0, 3.0, 3.0])
+    input = Tensor(input_np)
+    res = min(input)
+    res.backward()
+    expected_grad = np.array([0.5, 0.5, 0.0, 0.0])
+    assert_close(expected_grad, input.grad)
 
 
 def test_softmax():
