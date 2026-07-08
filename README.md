@@ -84,14 +84,21 @@ uv add deep-atomic
 
 ## Development
 
-Install in editable mode with development dependencies:
+Recommend manage dependencies using [uv](https://github.com/astral-sh/uv).
 
 ```bash
-pip install -e ".[dev]"
+uv sync
 ```
 
 Run tests:
 
 ```bash
+cd tests
 pytest
+```
+
+Build wheels:
+
+```bash
+uv build
 ```
