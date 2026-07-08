@@ -1,5 +1,5 @@
 import pytest
-from deep import *
+from deep_atomic import *
 import numpy as np
 
 

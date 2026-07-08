@@ -1,6 +1,6 @@
 import numpy as np
 
-from deep import *
+from deep_atomic import *
 
 
 def assert_close(expected, actual, rtol=5e-05, atol=1e-08):

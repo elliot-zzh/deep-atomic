@@ -4,7 +4,7 @@ import numpy as np
 
 from .utils import *
 
-from deep import *
+from deep_atomic import *
 
 
 # TODO: refactor for more organized test code

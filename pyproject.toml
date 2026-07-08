@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "deep"
+name = "deep_atomic"
 version = "0.1.0"
 description = "A simple deep learning framework built upon numpy only"
 readme = "README.md"

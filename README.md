@@ -1,4 +1,4 @@
-# deep
+# deep-atomic
 
 A simple deep learning framework built upon numpy only. Mainly for practice and learning.
 
@@ -7,7 +7,7 @@ A simple deep learning framework built upon numpy only. Mainly for practice and 
 ### Import
 
 ```python
-import deep
+import deep_atomic as da
 import numpy as np   # required for tensor initialization and some operations
 ```
 
@@ -15,7 +15,7 @@ import numpy as np   # required for tensor initialization and some operations
 
 ```python
 # Create a tensor from a NumPy array (requires_grad=True by default)
-a = deep.Tensor(
+a = da.Tensor(
     np.array([1, 2, 3], dtype=np.float64),
     requires_grad=True
 )
@@ -26,7 +26,7 @@ a = deep.Tensor(
 Most essential deep‑learning operations are implemented. For those that also exist in NumPy, we follow NumPy's API conventions.
 
 ```python
-a, b = deep.Tensor(np.random.rand(3, 4)), deep.Tensor(np.random.rand(3, 4))
+a, b = da.Tensor(np.random.rand(3, 4)), da.Tensor(np.random.rand(3, 4))
 
 # Arithmetic & math
 c = a + b                     # addition
@@ -35,26 +35,26 @@ c = a * b                     # element‑wise multiplication
 c = a / b                     # element‑wise division
 c = a ** b                    # element‑wise power
 c = a @ b                     # matrix multiplication
-c = deep.exp(a)
-c = deep.log(a)
+c = da.exp(a)
+c = da.log(a)
 
 # Reductions
-c = deep.sum(a)                               # shape: (1,)
-c = deep.sum(a, axis=1)                       # shape: (3,)
-c = deep.sum(a, axis=1, keepdims=True)        # shape: (3, 1)
+c = da.sum(a)                               # shape: (1,)
+c = da.sum(a, axis=1)                       # shape: (3,)
+c = da.sum(a, axis=1, keepdims=True)        # shape: (3, 1)
 # min, max, argmin, argmax follow the same signature
 
 # Softmax
-c = deep.softmax(a, axis=-1)
-c = deep.log_softmax(a, axis=-1)
+c = da.softmax(a, axis=-1)
+c = da.log_softmax(a, axis=-1)
 
 # Shape manipulations
 c = a.reshape(2, 6)
 c = a.reshape(1, 12).squeeze(0)               # shape: (12,)
-c = deep.expand_dims(a, -1)                   # shape: (3, 4, 1)
+c = da.expand_dims(a, -1)                   # shape: (3, 4, 1)
 c = a.expand_dims(-1)                         # method‑style alternative
 c = a.repeat(2, axis=1)                       # shape: (3, 8)
-c = deep.tile(a, (2, 2))                      # shape: (6, 8)
+c = da.tile(a, (2, 2))                      # shape: (6, 8)
 c = a.tile(2, 2)                              # method‑style alternative
 ```
 
@@ -75,7 +75,12 @@ c = a.tile(2, 2)                              # method‑style alternative
 
 ## Installation
 
-> not completed yet
+```bash
+pip install deep_atomic
+
+# or with uv
+uv add deep_atomic
+```
 
 ## Development
 

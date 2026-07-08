@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from deep import *
+from deep_atomic import *
 
 
 def try_ufunc_call(ufunc, *args_np):
