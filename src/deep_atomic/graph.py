@@ -105,6 +105,105 @@ class Sigmoid(SingleOp):
     def backward(self, grad):
         # TODO: input's actual value is no longer useful during backward, and can be released to increase memory efficiency
         self.input.backward(self.output_np * (1 - self.output_np) * grad)
+        
+        
+class Sin(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(np.cos(self.input.to_np()) * grad)
+        
+
+class Cos(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(-np.sin(self.input.to_np()) * grad)
+        
+        
+class Tan(SingleOp):
+    def __init__(self, input: Tensor, output_np: np.ndarray):
+        super().__init__(input)
+        self.output_np = output_np
+        
+    def backward(self, grad):
+        self.input.backward((1 + self.output_np ** 2) * grad) # faster since only polynomials are concerned
+        
+        
+class Arcsin(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(1 / (1 - self.input.to_np() ** 2) ** 0.5 * grad)
+        
+        
+class Arccos(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(-1 / (1 - self.input.to_np() ** 2) ** 0.5 * grad)
+        
+        
+class Arctan(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(1 / (self.input.to_np() ** 2 + 1) * grad)
+        
+
+class Sinh(SingleOp):
+    def __init__(self, input: Tensor, output_np: np.ndarray):
+        super().__init__(input)
+        self.output_np = output_np
+        
+    def backward(self, grad):
+        self.input.backward((1 + self.output_np ** 2) ** 0.5 * grad) # faster since only polynomials are concerned
+        
+        
+class Cosh(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(np.sinh(self.input.to_np()) * grad)
+
+
+class Tanh(SingleOp):
+    def __init__(self, input: Tensor, output_np: np.ndarray):
+        super().__init__(input)
+        self.output_np = output_np
+        
+    def backward(self, grad):
+        self.input.backward((1 - self.output_np ** 2) * grad) # faster since only polynomials are concerned
+        
+        
+class Arcsinh(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(1 / (self.input.to_np() ** 2 + 1) ** 0.5 * grad)
+
+
+class Arccosh(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(1 / (self.input.to_np() ** 2 - 1) ** 0.5 * grad)
+
+
+class Arctanh(SingleOp):
+    def __init__(self, input: Tensor):
+        super().__init__(input)
+        
+    def backward(self, grad):
+        self.input.backward(1 / (1 - self.input.to_np() ** 2) * grad)
 
 
 class Pow(TwoOp):

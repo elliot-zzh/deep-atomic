@@ -43,14 +43,19 @@ c = a * b                     # element‑wise multiplication
 c = a / b                     # element‑wise division
 c = a ** b                    # element‑wise power
 c = a @ b                     # matrix multiplication
+
 c = da.exp(a)
 c = da.log(a)
+c = da.sin(a)
+# the same for cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, arcsinh, arccosh, arctanh
+
 d = a < b                     # element-wise comparison, create a boolean tensor
 e = a <= b
 c = a > b
 c = a >= b
 c = a == b
 c = a != b
+
 c = d & e                     # element-wise and
 c = d | e                     # element-wise or
 c = d ^ e                     # element-wise xor
@@ -72,6 +77,7 @@ c = da.log_softmax(a, axis=-1, temperature=0.6)
 c = da.sigmoid(a)
 c = da.silu(a)
 c = da.relu(a)
+c = da.gelu(a) # Deep Atomic uses the tanh approximation for speed and convenience
 
 c = a.reshape(2, 6)
 c = a.reshape(1, 12).squeeze(0)               # shape: (12,)

@@ -116,6 +116,90 @@ def test_log():
     assert (res.to_np() == np.log(input_np)).all()
 
 
+def test_sin():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sin(input)
+    assert (res.to_np() == np.sin(input_np)).all()
+
+
+def test_cos():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = cos(input)
+    assert (res.to_np() == np.cos(input_np)).all()
+
+
+def test_tan():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = tan(input)
+    assert (res.to_np() == np.tan(input_np)).all()
+
+
+def test_arcsin():
+    input_np = np.clip(np.random.rand(3, 4) * 2 - 1, -0.99, 0.99)
+    input = Tensor(input_np)
+    res = arcsin(input)
+    assert (res.to_np() == np.arcsin(input_np)).all()
+
+
+def test_arccos():
+    input_np = np.clip(np.random.rand(3, 4) * 2 - 1, -0.99, 0.99)
+    input = Tensor(input_np)
+    res = arccos(input)
+    assert (res.to_np() == np.arccos(input_np)).all()
+
+
+def test_arctan():
+    input_np = np.random.rand(3, 4) * 10
+    input = Tensor(input_np)
+    res = arctan(input)
+    assert (res.to_np() == np.arctan(input_np)).all()
+
+
+def test_sinh():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sinh(input)
+    assert (res.to_np() == np.sinh(input_np)).all()
+
+
+def test_cosh():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = cosh(input)
+    assert (res.to_np() == np.cosh(input_np)).all()
+
+
+def test_tanh():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = tanh(input)
+    assert (res.to_np() == np.tanh(input_np)).all()
+
+
+def test_arcsinh():
+    input_np = np.random.rand(3, 4) * 10 - 5
+    input = Tensor(input_np)
+    res = arcsinh(input)
+    assert (res.to_np() == np.arcsinh(input_np)).all()
+
+
+def test_arccosh():
+    input_np = np.random.rand(3, 4) + 1.0
+    input = Tensor(input_np)
+    res = arccosh(input)
+    assert (res.to_np() == np.arccosh(input_np)).all()
+
+
+def test_arctanh():
+    input_np = np.clip(np.random.rand(3, 4) * 1.8 - 0.9, -0.99, 0.99)
+    input = Tensor(input_np)
+    res = arctanh(input)
+    assert (res.to_np() == np.arctanh(input_np)).all()
+
+
 def test_abs():
     input_np = np.random.rand(3, 4) - 0.5
     input = Tensor(input_np)

@@ -30,12 +30,10 @@ def pow(a1, a2):
 
 
 def exp(input):
-    # TODO: handle other methods for ufunc (or use torch like api?)
     return input.__array_ufunc__(np.exp, "__call__", input)
 
 
 def log(input):
-    # TODO: handle other methods for ufunc (or use torch like api?)
     return input.__array_ufunc__(np.log, "__call__", input)
 
 
@@ -117,6 +115,45 @@ def sigmoid(input: Tensor):
     return res
 
 
+def sin(input):
+    return input.__array_ufunc__(np.sin, "__call__", input)
+
+
+def cos(input):
+    return input.__array_ufunc__(np.cos, "__call__", input)
+
+
+def tan(input):
+    return input.__array_ufunc__(np.tan, "__call__", input)
+
+def arcsin(input):
+    return input.__array_ufunc__(np.arcsin, "__call__", input)
+
+def arccos(input):
+    return input.__array_ufunc__(np.arccos, "__call__", input)
+
+def arctan(input):
+    return input.__array_ufunc__(np.arctan, "__call__", input)
+
+def sinh(input):
+    return input.__array_ufunc__(np.sinh, "__call__", input)
+
+def cosh(input):
+    return input.__array_ufunc__(np.cosh, "__call__", input)
+
+def tanh(input):
+    return input.__array_ufunc__(np.tanh, "__call__", input)
+
+def arcsinh(input):
+    return input.__array_ufunc__(np.arcsinh, "__call__", input)
+
+def arccosh(input):
+    return input.__array_ufunc__(np.arccosh, "__call__", input)
+
+def arctanh(input):
+    return input.__array_ufunc__(np.arctanh, "__call__", input)
+
+
 def relu(input: Tensor):
     condition = input > 0
     return where(condition, input, 0)
@@ -124,6 +161,10 @@ def relu(input: Tensor):
 
 def silu(input: Tensor):
     return input * sigmoid(input)
+
+
+def gelu(input: Tensor):
+    return 0.5 * input * (1 + tanh(0.7978845608028654 * (input + 0.44715 * input ** 3)))
 
 
 def reshape(input: Tensor, target_shape):

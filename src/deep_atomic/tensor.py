@@ -164,6 +164,30 @@ class Tensor(np.ndarray):
             res = Tensor(result_np, dep=Pow(*inputs, 2))
         elif ufunc is np.abs:
             res = Tensor(result_np, dep=Abs(*inputs))
+        elif ufunc is np.sin:
+            res = Tensor(result_np, dep=Sin(*inputs))
+        elif ufunc is np.cos:
+            res = Tensor(result_np, dep=Cos(*inputs))
+        elif ufunc is np.tan:
+            res = Tensor(result_np, dep=Tan(*inputs, result_np))
+        elif ufunc is np.arcsin:
+            res = Tensor(result_np, dep=Arcsin(*inputs))
+        elif ufunc is np.arccos:
+            res = Tensor(result_np, dep=Arccos(*inputs))
+        elif ufunc is np.arctan:
+            res = Tensor(result_np, dep=Arctan(*inputs))
+        elif ufunc is np.sinh:
+            res = Tensor(result_np, dep=Sinh(*inputs, result_np))
+        elif ufunc is np.cosh:
+            res = Tensor(result_np, dep=Cosh(*inputs))
+        elif ufunc is np.tanh:
+            res = Tensor(result_np, dep=Tanh(*inputs, result_np))
+        elif ufunc is np.arcsinh:
+            res = Tensor(result_np, dep=Arcsinh(*inputs))
+        elif ufunc is np.arccosh:
+            res = Tensor(result_np, dep=Arccosh(*inputs))
+        elif ufunc is np.arctanh:
+            res = Tensor(result_np, dep=Arctanh(*inputs))
         else:
             return NotImplemented
 

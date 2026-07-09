@@ -254,6 +254,126 @@ def test_log():
     assert_close(numerical_grad(func, input), input.grad)
 
 
+def test_sin():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sum(sin(input))
+    res.backward()
+
+    func = lambda x: sum(sin(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_cos():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sum(cos(input))
+    res.backward()
+
+    func = lambda x: sum(cos(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_tan():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sum(tan(input))
+    res.backward()
+
+    func = lambda x: sum(tan(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_arcsin():
+    input_np = np.clip(np.random.rand(3, 4) * 2 - 1, -0.99, 0.99)
+    input = Tensor(input_np)
+    res = sum(arcsin(input))
+    res.backward()
+
+    func = lambda x: sum(arcsin(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_arccos():
+    input_np = np.clip(np.random.rand(3, 4) * 2 - 1, -0.99, 0.99)
+    input = Tensor(input_np)
+    res = sum(arccos(input))
+    res.backward()
+
+    func = lambda x: sum(arccos(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_arctan():
+    input_np = np.random.rand(3, 4) * 10
+    input = Tensor(input_np)
+    res = sum(arctan(input))
+    res.backward()
+
+    func = lambda x: sum(arctan(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_sinh():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sum(sinh(input))
+    res.backward()
+
+    func = lambda x: sum(sinh(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_cosh():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sum(cosh(input))
+    res.backward()
+
+    func = lambda x: sum(cosh(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_tanh():
+    input_np = np.random.rand(3, 4) * 2 - 1
+    input = Tensor(input_np)
+    res = sum(tanh(input))
+    res.backward()
+
+    func = lambda x: sum(tanh(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_arcsinh():
+    input_np = np.random.rand(3, 4) * 10 - 5
+    input = Tensor(input_np)
+    res = sum(arcsinh(input))
+    res.backward()
+
+    func = lambda x: sum(arcsinh(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_arccosh():
+    input_np = np.random.rand(3, 4) + 1.0
+    input = Tensor(input_np)
+    res = sum(arccosh(input))
+    res.backward()
+
+    func = lambda x: sum(arccosh(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_arctanh():
+    input_np = np.clip(np.random.rand(3, 4) * 1.8 - 0.9, -0.99, 0.99)
+    input = Tensor(input_np)
+    res = sum(arctanh(input))
+    res.backward()
+
+    func = lambda x: sum(arctanh(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
 def test_gradient_from_multiple_paths():
     input_np = np.random.rand(3, 4)
     input = Tensor(input_np)
@@ -344,9 +464,19 @@ def test_silu():
 
     func = lambda x: sum(silu(x))
     assert_close(numerical_grad(func, input), input.grad)
-    
-    
-def test_silu():
+
+
+def test_gelu():
+    input_np = np.random.rand(3, 4)
+    input = Tensor(input_np)
+    res = sum(gelu(input))
+    res.backward()
+
+    func = lambda x: sum(gelu(x))
+    assert_close(numerical_grad(func, input), input.grad)
+
+
+def test_relu():
     input_np = np.random.rand(3, 4)
     input = Tensor(input_np)
     res = sum(relu(input))
