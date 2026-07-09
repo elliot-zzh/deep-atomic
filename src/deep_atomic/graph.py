@@ -269,3 +269,14 @@ class Where(TwoOp):
             self.a1.backward(np.where(self.condition, grad, 0))
         if self.a2 is not None:
             self.a2.backward(np.where(self.condition, 0, grad))
+            
+
+class TakeAlongAxis(SingleOp):
+    def __init__(self, input: Tensor, indices, axis):
+        super().__init__(input)
+        self.indices, self.axis = indices, axis
+        
+    def backward(self, grad):
+        grad_ = np.zeros(self.input.shape)
+        np.put_along_axis(grad_, self.indices, grad, self.axis)
+        self.input.backward(grad_)

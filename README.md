@@ -50,6 +50,8 @@ c = d.all(axis=-1)            # reduction of and operation
 c = d.any(axis=-1)            # reduction of or operation
 c = da.where(d, a, b)         # return elements chosen from a or b depending on condition
 
+c = da.topk(a, 2, axis=-1, largest=True)    # same as pytorch. axis=-1, largest=True by default
+
 c = da.sum(a)                               # shape: (1,)
 c = da.sum(a, axis=1)                       # shape: (3,)
 c = da.sum(a, axis=1, keepdims=True)        # shape: (3, 1)
@@ -85,11 +87,13 @@ print(res.grad) # gradient get!
 ## Todo
 
 - [ ] more basic operations and their autograd
-    - [ ] convolution and 2d convolution
-    - [ ] topk
-    - [ ] boolean and masked operation
-    - [ ] einsum
+    - [x] topk
+    - [x] boolean operations
+    - [x] gather or take_along_axis
     - [ ] scatter
+    - [ ] convolution and 2d convolution
+    - [ ] direct masking and indexing via `[]` syntax
+    - [ ] einsum
 - [ ] support backward with Vector-Jacobian Product like pytorch
 - [ ] basic neural network classes
 - [ ] optimizers and loss functions

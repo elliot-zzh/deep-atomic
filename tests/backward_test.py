@@ -462,3 +462,23 @@ def test_where():
 
     assert_close(numerical_grad(func1, a1), a1.grad)
     assert_close(numerical_grad(func2, a2), a2.grad)
+    
+
+def test_topk():
+    # largest
+    input_np = np.random.rand(4, 5)
+    input = Tensor(input_np)
+    res = sum(topk(input, 2, axis=-1)[0])
+    res.backward()
+    
+    func = lambda x: sum(topk(x, 2, axis=-1)[0])
+    assert_close(numerical_grad(func, input), input.grad)
+    
+    # smallest
+    input_np = np.random.rand(4, 5)
+    input = Tensor(input_np)
+    res = sum(topk(input, 2, axis=-1, largest=False)[0])
+    res.backward()
+    
+    func = lambda x: sum(topk(x, 2, axis=-1, largest=False)[0])
+    assert_close(numerical_grad(func, input), input.grad)

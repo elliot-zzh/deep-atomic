@@ -149,3 +149,24 @@ def where(condition, a1, a2):
     res = Tensor(np.where(condition, a1, a2), requires_grad=requires_grad)
     if res.requires_grad: res.dep = Where(condition, a1, a2)
     return res
+
+# TODO: API design. Should I follow pytorch and add a gather?
+def take_along_axis(input: Tensor, indices, axis=-1):
+    if isinstance(indices,Tensor): indices = indices.to_np() # cut off gradient
+    res = Tensor(np.take_along_axis(input, indices, axis), requires_grad=input.requires_grad)
+    if res.requires_grad: res.dep = TakeAlongAxis(input, indices, axis)
+    return res
+
+# TODO: Tensor.implement scatter_
+
+def topk(input: Tensor, kth, axis=-1, largest=True):
+    if largest:
+        indices = np.argpartition(input, input.shape[axis] - kth, axis)
+        indices_idx = [slice(None)] * input.ndim
+        indices_idx[axis] = slice(-kth, None)
+    else:
+        indices = np.argpartition(input, kth, axis)
+        indices_idx = [slice(None)] * input.ndim
+        indices_idx[axis] = slice(kth)
+    indices = indices[tuple(indices_idx)]
+    return take_along_axis(input, indices, axis), Tensor(indices, requires_grad=False)

@@ -362,3 +362,20 @@ def test_all():
     # full along an axis
     res = all(input, axis=-1)
     assert (res.to_np() == np.all(input_np, axis=-1)).all()
+
+def test_topk():
+    input = Tensor(np.array([[1, 2, 3], [6, 4, 5]]))
+    
+    # largest
+    expected_values = Tensor(np.array([[2, 3], [5, 6]]))
+    expected_indices = Tensor(np.array([[1, 2], [2, 0]]))
+    values, indices = topk(input, 2, axis=-1)
+    assert (np.sort(values.to_np(), axis=-1) == expected_values).all() # sort to ensure order
+    assert (np.take_along_axis(indices, np.argsort(values.to_np(), axis=-1), axis=-1) == expected_indices).all() # sort then gather to ensure correct mapping
+    
+    # smallest
+    expected_values = Tensor(np.array([[1, 2], [4, 5]]))
+    expected_indices = Tensor(np.array([[0, 1], [1, 2]]))
+    values, indices = topk(input, 2, axis=-1, largest=False)
+    assert (np.sort(values.to_np(), axis=-1) == expected_values).all()
+    assert (np.take_along_axis(indices, np.argsort(values.to_np(), axis=-1), axis=-1) == expected_indices).all()
