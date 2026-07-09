@@ -1,4 +1,4 @@
-# deep-atomic
+# Deep Atomic
 
 A simple deep learning framework built upon numpy only. Mainly for practice and learning.
 
@@ -58,6 +58,18 @@ c = da.tile(a, (2, 2))                        # shape: (6, 8)
 c = a.tile(2, 2)                              # method‑style alternative
 ```
 
+### Autograd
+
+Autograd is supported via computational graph.
+_Currently only support scalar source points._
+
+```python
+x = Tensor(np.random.rand(3, 4)) # requires_grad == True by default
+res = ... # some calculation related to x. res is a **scalar** result
+res.backward()
+print(res.grad) # gradient get!
+```
+
 ## Todo
 
 - [ ] more basic operations and their autograd
@@ -66,6 +78,7 @@ c = a.tile(2, 2)                              # method‑style alternative
     - [ ] boolean and masked operation
     - [ ] einsum
     - [ ] scatter
+- [ ] support backward with Vector-Jacobian Product like pytorch
 - [ ] basic neural network classes
 - [ ] optimizers and loss functions
 - [ ] full training test
