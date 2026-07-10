@@ -112,14 +112,18 @@ print(res.grad) # gradient get!
     - [x] gather or take_along_axis
     - [ ] scatter
     - [ ] convolution and 2d convolution
+    - [ ] pooling functions
+    - [ ] softmax attention
     - [ ] direct masking and indexing via `[]` syntax
     - [ ] einsum
+    - [ ] normalization
 - [ ] support backward with Vector-Jacobian Product like pytorch
-- [ ] basic neural network classes
+- [ ] basic neural network modules
 - [ ] optimizers and loss functions
+- [ ] dataset pipelines
 - [ ] full training test
 - [ ] benchmark with pytorch on CPU
-- [ ] attention layers and full LLM training
+- [ ] full LLM training
 - [ ] finer type annotations, comments and documentation
 
 ## Development
