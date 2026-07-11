@@ -112,7 +112,7 @@ print(res.grad) # gradient get!
     - [x] gather or take_along_axis
     - [ ] scatter
     - [ ] convolution and 2d convolution
-    - [ ] pooling functions
+    - [ ] pooling
     - [ ] softmax attention
     - [ ] direct masking and indexing via `[]` syntax
     - [ ] einsum
@@ -121,6 +121,7 @@ print(res.grad) # gradient get!
 - [ ] basic neural network modules
 - [ ] optimizers and loss functions
 - [ ] dataset pipelines
+- [ ] save and load state dict file
 - [ ] full training test
 - [ ] benchmark with pytorch on CPU
 - [ ] full LLM training
