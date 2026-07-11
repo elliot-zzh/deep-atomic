@@ -130,9 +130,11 @@ print(res.grad) # gradient get!
 ## Development
 
 Recommend manage dependencies using [uv](https://github.com/astral-sh/uv).
+We use [pre-commit](https://github.com/pre-commit/pre-commit) to manage hooks which help to lint and format our code.
 
 ```bash
 uv sync
+pre-commit install # install pre-commit git hooks for lint and format
 ```
 
 Run tests:
