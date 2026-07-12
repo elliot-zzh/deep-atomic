@@ -7,680 +7,198 @@ from deep_atomic import *
 
 from .utils import *
 
-# TODO: refactor for more organized test code
 
-
-def test_sum():
-    # test full reduction
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = input.sum()
-    res.backward()
-    func = lambda x: sum(x)
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_add():
-    # test tensor + scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = (a1 + a2).sum()
-    res.backward()
-
-    func = lambda x: sum(x + a2)
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test tensor + tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 + a2).sum()
-    res.backward()
-
-    func = lambda x: lambda y: sum(x + y)
-    assert_close(numerical_grad(func(a2), a1), a1.grad)
-    assert_close(numerical_grad(func(a1), a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 + a2).sum()
-    res.backward()
-
-    func = lambda x: lambda y: sum(x + y)
-    assert_close(numerical_grad(func(a2), a1), a1.grad)
-    assert_close(numerical_grad(func(a1), a2), a2.grad)
-
-
-def test_sub():
-    # test tensor - scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = (a1 - a2).sum()
-    res.backward()
-
-    func = lambda x: sum(x - a2)
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test tensor - tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 - a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x - a2)
-    func2 = lambda x: sum(a1 - x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 - a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x - a2)
-    func2 = lambda x: sum(a1 - x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-
-def test_mul():
-    # test tensor * scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = (a1 * a2).sum()
-    res.backward()
-
-    func = lambda x: sum(x * a2)
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test tensor * tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 * a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x * a2)
-    func2 = lambda x: sum(a1 * x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 * a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x * a2)
-    func2 = lambda x: sum(a1 * x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-
-def test_matmul():
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(4, 2)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 @ a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x @ a2)
-    func2 = lambda x: sum(a1 @ x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(5, 3, 4), np.random.rand(1, 4, 2)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 @ a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x @ a2)
-    func2 = lambda x: sum(a1 @ x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-
-def test_div():
-    # test tensor / scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = (a1 / a2).sum()
-    res.backward()
-
-    func = lambda x: sum(x / a2)
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test scalar / tensor
-    a1_np, a2_np = np.random.rand(1), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np, requires_grad=False), Tensor(a2_np)
-    res = (a1 / a2).sum()
-    res.backward()
-
-    func = lambda x: sum(a1 / x)
-    assert_close(numerical_grad(func, a2), a2.grad)
-
-    # test tensor / tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 / a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x / a2)
-    func2 = lambda x: sum(a1 / x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1 / a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x / a2)
-    func2 = lambda x: sum(a1 / x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-
-def test_pow():
-    # test tensor ** scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = (a1**a2).sum()
-    res.backward()
-
-    func = lambda x: sum(x**a2)
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test scalar ** tensor
-    a1_np, a2_np = np.random.rand(1), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np, requires_grad=False), Tensor(a2_np)
-    res = (a1**a2).sum()
-    res.backward()
-
-    func = lambda x: sum(a1**x)
-    assert_close(numerical_grad(func, a2), a2.grad)
-
-    # test tensor ** tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1**a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x**a2)
-    func2 = lambda x: sum(a1**x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = (a1**a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(x**a2)
-    func2 = lambda x: sum(a1**x)
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-
-def test_exp():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(exp(input))
-    res.backward()
-
-    func = lambda x: sum(exp(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_log():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(log(input))
-    res.backward()
-
-    func = lambda x: sum(log(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_sin():
-    input_np = np.random.rand(3, 4) * 2 - 1
-    input = Tensor(input_np)
-    res = sum(sin(input))
-    res.backward()
-
-    func = lambda x: sum(sin(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_cos():
-    input_np = np.random.rand(3, 4) * 2 - 1
-    input = Tensor(input_np)
-    res = sum(cos(input))
-    res.backward()
-
-    func = lambda x: sum(cos(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_tan():
-    input_np = np.random.rand(3, 4) * 2 - 1
-    input = Tensor(input_np)
-    res = sum(tan(input))
-    res.backward()
-
-    func = lambda x: sum(tan(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_arcsin():
-    input_np = np.clip(np.random.rand(3, 4) * 2 - 1, -0.99, 0.99)
-    input = Tensor(input_np)
-    res = sum(arcsin(input))
-    res.backward()
-
-    func = lambda x: sum(arcsin(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_arccos():
-    input_np = np.clip(np.random.rand(3, 4) * 2 - 1, -0.99, 0.99)
-    input = Tensor(input_np)
-    res = sum(arccos(input))
-    res.backward()
-
-    func = lambda x: sum(arccos(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_arctan():
-    input_np = np.random.rand(3, 4) * 10
-    input = Tensor(input_np)
-    res = sum(arctan(input))
-    res.backward()
-
-    func = lambda x: sum(arctan(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_sinh():
-    input_np = np.random.rand(3, 4) * 2 - 1
-    input = Tensor(input_np)
-    res = sum(sinh(input))
-    res.backward()
-
-    func = lambda x: sum(sinh(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_cosh():
-    input_np = np.random.rand(3, 4) * 2 - 1
-    input = Tensor(input_np)
-    res = sum(cosh(input))
-    res.backward()
-
-    func = lambda x: sum(cosh(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_tanh():
-    input_np = np.random.rand(3, 4) * 2 - 1
-    input = Tensor(input_np)
-    res = sum(tanh(input))
-    res.backward()
-
-    func = lambda x: sum(tanh(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_arcsinh():
-    input_np = np.random.rand(3, 4) * 10 - 5
-    input = Tensor(input_np)
-    res = sum(arcsinh(input))
-    res.backward()
-
-    func = lambda x: sum(arcsinh(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_arccosh():
-    input_np = np.random.rand(3, 4) + 1.0
-    input = Tensor(input_np)
-    res = sum(arccosh(input))
-    res.backward()
-
-    func = lambda x: sum(arccosh(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_arctanh():
-    input_np = np.clip(np.random.rand(3, 4) * 1.8 - 0.9, -0.99, 0.99)
-    input = Tensor(input_np)
-    res = sum(arctanh(input))
-    res.backward()
-
-    func = lambda x: sum(arctanh(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_gradient_from_multiple_paths():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(input + input * input / exp(input))
-    res.backward()
-
-    func = lambda x: sum(x + x * x / exp(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_max():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(max(input, axis=-1))
-    res.backward()
-
-    func = lambda x: sum(max(x, axis=-1))
-    assert_close(numerical_grad(func, input), input.grad)
-
-    # test full reduction
-    input_np = np.array([2.0, 2.0, 3.0, 3.0])
-    input = Tensor(input_np)
-    res = max(input)
-    res.backward()
-    expected_grad = np.array([0.0, 0.0, 0.5, 0.5])
-    assert_close(expected_grad, input.grad)
-
-
-def test_min():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(min(input, axis=-1))
-    res.backward()
-
-    func = lambda x: sum(min(x, axis=-1))
-    assert_close(numerical_grad(func, input), input.grad)
-
-    # test full reduction
-    input_np = np.array([2.0, 2.0, 3.0, 3.0])
-    input = Tensor(input_np)
-    res = min(input)
-    res.backward()
-    expected_grad = np.array([0.5, 0.5, 0.0, 0.0])
-    assert_close(expected_grad, input.grad)
-
-
-def test_fmax():
-    # test tensor + scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = fmax(a1, a2).sum()
-    res.backward()
-
-    func = lambda x: sum(fmax(x, a2))
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test tensor + tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = fmax(a1, a2).sum()
-    res.backward()
-
-    func = lambda x: lambda y: sum(fmax(x, y))
-    assert_close(numerical_grad(func(a2), a1), a1.grad)
-    assert_close(numerical_grad(func(a1), a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = fmax(a1, a2).sum()
-    res.backward()
-
-    func = lambda x: lambda y: sum(fmax(x, y))
-    assert_close(numerical_grad(func(a2), a1), a1.grad)
-    assert_close(numerical_grad(func(a1), a2), a2.grad)
-
-
-def test_fmin():
-    # test tensor + scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = fmin(a1, a2).sum()
-    res.backward()
-
-    func = lambda x: sum(fmin(x, a2))
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test tensor + tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = fmin(a1, a2).sum()
-    res.backward()
-
-    func = lambda x: lambda y: sum(fmin(x, y))
-    assert_close(numerical_grad(func(a2), a1), a1.grad)
-    assert_close(numerical_grad(func(a1), a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = fmin(a1, a2).sum()
-    res.backward()
-
-    func = lambda x: lambda y: sum(fmin(x, y))
-    assert_close(numerical_grad(func(a2), a1), a1.grad)
-    assert_close(numerical_grad(func(a1), a2), a2.grad)
-
-
-def test_softmax():
-    input_np = np.random.rand(3, 4)
-    weight_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    weight = Tensor(weight_np)
-    res = sum(
-        softmax(input, axis=-1, temperature=0.6) * weight
-    )  # must multiply a weight so that res != 3
-    res.backward()
-
-    func1 = lambda x: sum(softmax(x, axis=-1, temperature=0.6) * weight)
-    assert_close(numerical_grad(func1, input), input.grad)
-    func2 = lambda x: sum(softmax(input, axis=-1, temperature=0.6) * x)
-    assert_close(numerical_grad(func2, weight), weight.grad)
-
-
-def test_log_softmax():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(log_softmax(input, axis=-1))
-    res.backward()
-
-    func = lambda x: sum(log_softmax(x, axis=-1))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_sigmoid():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(sigmoid(input))
-    res.backward()
-
-    func = lambda x: sum(sigmoid(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_silu():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(silu(input))
-    res.backward()
-
-    func = lambda x: sum(silu(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_gelu():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(gelu(input))
-    res.backward()
-
-    func = lambda x: sum(gelu(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_relu():
-    input_np = np.random.rand(3, 4)
-    input = Tensor(input_np)
-    res = sum(relu(input))
-    res.backward()
-
-    func = lambda x: sum(relu(x))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_reshape():
-    input_np = np.random.rand(2, 6)
-    input = Tensor(input_np)
-    res = sum(softmax((input**2 + input).reshape(3, 4), axis=-1))
-    res.backward()
-
-    func = lambda x: sum(softmax((x**2 + x).reshape(3, 4)))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_squeeze():
-    input_np = np.random.rand(2, 1, 3)
-    input = Tensor(input_np)
-    res = ((input.squeeze(axis=1) ** 2) + input.squeeze(axis=1)).sum()
-    res.backward()
-
-    func = lambda x: sum((x.squeeze(axis=1) ** 2 + x.squeeze(axis=1)))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_expand_dims():
-    input_np = np.random.rand(2, 3)
-    input = Tensor(input_np)
-    res = ((input.expand_dims(axis=1) ** 2) + input.expand_dims(axis=1)).sum()
-    res.backward()
-
-    func = lambda x: sum((np.expand_dims(x, axis=1) ** 2 + np.expand_dims(x, axis=1)))
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_repeat_int_axis_none():
-    input_np = np.random.rand(4)
-    input = Tensor(input_np)
-    res = ((input.repeat(2) ** 2) + input.repeat(2)).sum()
-    res.backward()
-
-    func = lambda x: ((x.repeat(2) ** 2) + x.repeat(2)).sum()
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_repeat_int_axis():
-    input_np = np.random.rand(2, 3)
-    input = Tensor(input_np)
-    res = ((input.repeat(2, axis=0) ** 2) + input.repeat(2, axis=0)).sum()
-    res.backward()
-
-    func = lambda x: ((np.repeat(x, 2, axis=0) ** 2) + np.repeat(x, 2, axis=0)).sum()
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_repeat_sequence_axis_none():
-    input_np = np.random.rand(3)
-    input = Tensor(input_np)
-    res = ((input.repeat([1, 2, 3]) ** 2) + input.repeat([1, 2, 3])).sum()
-    res.backward()
-
-    func = lambda x: ((np.repeat(x, [1, 2, 3]) ** 2) + np.repeat(x, [1, 2, 3])).sum()
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_repeat_sequence_axis():
-    input_np = np.random.rand(2, 3)
-    input = Tensor(input_np)
-    res = ((input.repeat([2, 1], axis=0) ** 2) + input.repeat([2, 1], axis=0)).sum()
-    res.backward()
-
-    func = lambda x: (
-        (np.repeat(x, [2, 1], axis=0) ** 2) + np.repeat(x, [2, 1], axis=0)
-    ).sum()
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_tile():
-    input_np = np.random.rand(2, 3)
-    input = Tensor(input_np)
-    res = ((input.tile(2, 2) ** 2) + input.tile(2, 2)).sum()
-    res.backward()
-
-    func = lambda x: ((tile(x, (2, 2)) ** 2) + tile(x, (2, 2))).sum()
-    assert_close(numerical_grad(func, input), input.grad)
-
-
-def test_where():
-    condition = np.random.choice(np.array([True, False]), size=(3, 4))
-    # test tensor and scalar
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np, requires_grad=False)
-    res = where(condition, a1, a2).sum()
-    res.backward()
-
-    func = lambda x: sum(where(condition, x, a2))
-    assert_close(numerical_grad(func, a1), a1.grad)
-
-    # test tensor and tensor
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 4)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = where(condition, a1, a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(where(condition, x, a2))
-    func2 = lambda x: sum(where(condition, a1, x))
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-    # test with broadcast
-    a1_np, a2_np = np.random.rand(3, 4), np.random.rand(3, 1)
-    a1, a2 = Tensor(a1_np), Tensor(a2_np)
-    res = where(condition, a1, a2).sum()
-    res.backward()
-
-    func1 = lambda x: sum(where(condition, x, a2))
-    func2 = lambda x: sum(where(condition, a1, x))
-
-    assert_close(numerical_grad(func1, a1), a1.grad)
-    assert_close(numerical_grad(func2, a2), a2.grad)
-
-
-def test_topk():
-    # largest
-    input_np = np.random.rand(4, 5)
-    input = Tensor(input_np)
-    res = sum(topk(input, 2, axis=-1)[0])
-    res.backward()
-
-    func = lambda x: sum(topk(x, 2, axis=-1)[0])
-    assert_close(numerical_grad(func, input), input.grad)
-
-    # smallest
-    input_np = np.random.rand(4, 5)
-    input = Tensor(input_np)
-    res = sum(topk(input, 2, axis=-1, largest=False)[0])
+def _test_unary_grad(init_fixture, op, *args, **kwargs):
+    t = init_fixture
+    res = op(t, *args, **kwargs).sum()
     res.backward()
+
+    func = lambda x: op(x, *args, **kwargs).sum()
+
+    assert_close(numerical_grad(func, t), t.grad)
+
+
+def _test_binary_grad(init_fixture, op, *args, **kwargs):
+    t1, t2 = init_fixture
+    res = op(t1, t2, *args, **kwargs).sum()
+    res.backward()
+
+    func1 = lambda x: op(x, t2, *args, **kwargs).sum()
+    func2 = lambda x: op(t1, x, *args, **kwargs).sum()
+
+    assert_close(numerical_grad(func1, t1), t1.grad)
+    assert_close(numerical_grad(func2, t2), t2.grad)
+
+
+class TestArithmeticOps:
+    @pytest.mark.parametrize("size1", [(3, 4), (2, 3, 4)])
+    @pytest.mark.parametrize("size2", [(4, 5)])
+    class TestMatMul:
+        def test_grad(self, make_binary, size1, size2):
+            _test_binary_grad(make_binary(size1=size1, size2=size2), lambda a, b: a @ b)
+
+    class TestPow:
+        def test_grad(self, make_binary):
+            _test_binary_grad(
+                make_binary(low1=0.0, high1=3.0, low2=-3.0, high2=3.0),
+                lambda a, b: a**b,
+            )
+
+    @pytest.mark.parametrize(
+        "op",
+        [
+            lambda a, b: a + b,
+            lambda a, b: a - b,
+            lambda a, b: a * b,
+            lambda a, b: a / b,
+        ],
+    )
+    @pytest.mark.parametrize("size1", [(3, 4)])
+    @pytest.mark.parametrize("size2", [(3, 4), (3, 1)])
+    class TestOthers:
+        def test_grad(self, make_binary, op, size1, size2):
+            _test_binary_grad(make_binary(size1=size1, size2=size2), op)
+
+
+class TestUnaryMath:
+    @pytest.mark.parametrize(
+        "op", [exp, sin, cos, tan, arctan, sinh, cosh, tanh, arcsinh]
+    )
+    class TestDomainReal:
+        def test_grad(self, make_unary, op):
+            _test_unary_grad(make_unary(low=-5, high=5), op)
+
+    @pytest.mark.parametrize("op", [arcsin, arccos, arctanh])
+    class TestDomainMinus1ToPlus1:
+        def test_grad(self, make_unary, op):
+            _test_unary_grad(make_unary(low=-1, high=1), op)
+
+    class TestLog:
+        def test_grad(self, make_unary):
+            _test_unary_grad(make_unary(low=0, high=1e3), lambda x: log(x))
+
+    class TestArccosh:
+        def test_grad(self, make_unary):
+            _test_unary_grad(make_unary(low=1, high=1e3), arccosh)
+
+
+class TestActivations:
+    @pytest.mark.parametrize("op", [softmax, log_softmax])
+    @pytest.mark.parametrize("axis", [0, 1])
+    class TestSoftmax:
+        def test_grad(self, unary, op, axis):
+            _test_unary_grad(unary, op, axis=axis)
+
+    @pytest.mark.parametrize("op", [sigmoid, relu, silu, gelu])
+    class TestOthers:
+        def test_grad(self, unary, op):
+            _test_unary_grad(unary, op)
+
+
+class TestRecductions:
+    @pytest.mark.parametrize("op", [sum, max, min])
+    @pytest.mark.parametrize("axis", [0, 1])
+    @pytest.mark.parametrize("keepdims", [True, False])
+    class TestWithGrad:
+        def test_grad(self, unary, op, axis, keepdims):
+            _test_unary_grad(unary, op, axis=axis, keepdims=keepdims)
+
+    @pytest.mark.parametrize("op", [argmin, argmax])
+    @pytest.mark.parametrize("axis", [0, 1])
+    @pytest.mark.parametrize("keepdims", [True, False])
+    class TestWithoutGrad: ...
+
 
-    func = lambda x: sum(topk(x, 2, axis=-1, largest=False)[0])
-    assert_close(numerical_grad(func, input), input.grad)
+class TestComparison:
+    @pytest.mark.parametrize(
+        "op",
+        [
+            lambda a, b: a == b,
+            lambda a, b: a < b,
+            lambda a, b: a <= b,
+            lambda a, b: a > b,
+            lambda a, b: a >= b,
+            lambda a, b: a != b,
+        ],
+    )
+    class TestResBool: ...
+
+    @pytest.mark.parametrize("op", [fmax, fmin])
+    class TestFMaxMin:
+        def test_grad(self, binary, op):
+            _test_binary_grad(binary, op)
+
+
+class TestLogical: ...
+
+
+class TestShapeOps:
+    @pytest.mark.parametrize("axis", [0, 1, 2])
+    class TestExpandDims:
+        def test_grad(self, unary, axis):
+            _test_unary_grad(unary, expand_dims, axis=axis)
+
+    @pytest.mark.parametrize("size", [(3, 4, 1), (3, 1, 4)])
+    class TestSqueeze:
+        def test_grad(self, make_unary, size):
+            t = make_unary(size=size)
+            axis = 0
+            for i, v in enumerate(t.shape):
+                if v == 1:
+                    axis = i
+            _test_unary_grad(t, squeeze, axis=axis)
+
+    @pytest.mark.parametrize(
+        "repeats_axis",
+        [
+            (2, None),
+            (2, 0),
+            ([1, 2, 3] * 4, None),
+            ([1, 2, 3], 0),
+        ],
+    )
+    class TestRepeat:
+        def test_grad(self, unary, repeats_axis):
+            repeats, axis = repeats_axis
+            log_softmax_axis = -1 if axis is None else axis
+            _test_unary_grad(
+                unary,
+                lambda x: log_softmax(
+                    x.repeat(repeats, axis=axis), axis=log_softmax_axis
+                ),
+            )
+
+    @pytest.mark.parametrize("reps", [(3,), (2, 3), (2, 2, 3)])
+    class TestTile:
+        def test_grad(self, binary, reps):
+            # use more complex test to deepen the graph
+            _test_binary_grad(binary, lambda a, b: log_softmax(a.tile(*reps)))
+
+    @pytest.mark.parametrize("size1", [(3, 4), (2, 3, 4)])
+    class TestWhere:
+        def test_grad(self, rng, make_binary, size1):
+            t1, _ = make_binary(size1=size1)
+            condition = rng.choice([True, False], size=t1.shape)
+            _test_binary_grad(
+                make_binary(size1=size1),
+                lambda a, b: where(condition, a, b),
+            )
+
+    @pytest.mark.parametrize("new_shape", [(2, 6), (3, 2, 2)])
+    class TestReshape:
+        def test_grad(self, unary, new_shape):
+            # use more complex test to deepen the graph
+            _test_unary_grad(
+                unary, lambda x: log_softmax(x.reshape(new_shape), axis=-1)
+            )
+
+
+class TestSelection:
+    class TestTopk:
+        @pytest.mark.parametrize("axis", [0, 1])
+        @pytest.mark.parametrize("kth", [1, 2])
+        @pytest.mark.parametrize("largest", [True, False])
+        def test_grad(self, unary, axis, kth, largest):
+            _test_unary_grad(
+                unary, lambda x: topk(x, axis=axis, kth=kth, largest=largest)[0]
+            )

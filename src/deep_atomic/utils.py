@@ -11,7 +11,9 @@ def detect_broadcast_dim(from_, to_):
 
 
 def is_broadcastable(from_, to_):
+    if len(to_) < len(from_):
+        return False
     res = True
-    for i in range(-1, -len(to_) - 1, -1):
+    for i in range(-1, -len(from_) - 1, -1):
         res = res and (from_[i] == to_[i] or from_[i] == 1 and to_[i] != 1)
     return res

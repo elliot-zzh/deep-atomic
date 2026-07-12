@@ -129,71 +129,67 @@ class Tensor(np.ndarray):
 
         # if requires_grad, construct graph
         # TODO: implement gradient computation for other methods / ufuncs
+        from . import graph as g
+
         if ufunc is np.add:
             if method == "__call__":
-                res = Tensor(result_np, dep=Add(*inputs))
+                res = Tensor(result_np, dep=g.Add(*inputs))
             elif method == "reduce":
-                axis = getattr(kwargs, "axis", None)
-                keepdims = getattr(kwargs, "keepdims", False)
-                res = Tensor(result_np, dep=Sum(*inputs, axis, keepdims))
+                axis = kwargs.get("axis", None)
+                keepdims = kwargs.get("keepdims", False)
+                res = Tensor(result_np, dep=g.Sum(*inputs, axis, keepdims))
             else:
                 return NotImplemented
         elif ufunc is np.subtract:
-            res = Tensor(result_np, dep=Add(*inputs, sub=True))
+            res = Tensor(result_np, dep=g.Add(*inputs, sub=True))
         elif ufunc is np.multiply:
-            res = Tensor(result_np, dep=Mul(*inputs))
+            res = Tensor(result_np, dep=g.Mul(*inputs))
         elif ufunc is np.negative:
-            res = Tensor(result_np, dep=Div(-1, *inputs))
+            res = Tensor(result_np, dep=g.Mul(-1, *inputs))
         elif ufunc is np.divide:
-            res = Tensor(result_np, dep=Div(*inputs))
+            res = Tensor(result_np, dep=g.Div(*inputs))
         elif ufunc is np.matmul:
-            res = Tensor(result_np, dep=MatMul(*inputs))
+            res = Tensor(result_np, dep=g.MatMul(*inputs))
         elif ufunc is np.exp:
-            res = Tensor(result_np, dep=Exp(*inputs))
-        elif ufunc is np.exp2:
-            res = Tensor(result_np, dep=Exp(Mul(*inputs, np.log(2))))
+            res = Tensor(result_np, dep=g.Exp(*inputs))
         elif ufunc is np.log:
-            res = Tensor(result_np, dep=Log(*inputs))
-        elif ufunc is np.log2:
-            res = Tensor(result_np, dep=Div(Log(*inputs), np.log(2)))
-        elif ufunc is np.log10:
-            res = Tensor(result_np, dep=Div(Log(*inputs), np.log(10)))
+            res = Tensor(result_np, dep=g.Log(*inputs))
         elif ufunc is np.pow:
-            res = Tensor(result_np, dep=Pow(*inputs))
+            res = Tensor(result_np, dep=g.Pow(*inputs))
         elif ufunc is np.square:
-            res = Tensor(result_np, dep=Pow(*inputs, 2))
+            res = Tensor(result_np, dep=g.Pow(*inputs, 2))
         elif ufunc is np.abs:
-            res = Tensor(result_np, dep=Abs(*inputs))
+            res = Tensor(result_np, dep=g.Abs(*inputs))
         elif ufunc is np.sin:
-            res = Tensor(result_np, dep=Sin(*inputs))
+            res = Tensor(result_np, dep=g.Sin(*inputs))
         elif ufunc is np.cos:
-            res = Tensor(result_np, dep=Cos(*inputs))
+            res = Tensor(result_np, dep=g.Cos(*inputs))
         elif ufunc is np.tan:
-            res = Tensor(result_np, dep=Tan(*inputs, result_np))
+            res = Tensor(result_np, dep=g.Tan(*inputs, result_np))
         elif ufunc is np.arcsin:
-            res = Tensor(result_np, dep=Arcsin(*inputs))
+            res = Tensor(result_np, dep=g.Arcsin(*inputs))
         elif ufunc is np.arccos:
-            res = Tensor(result_np, dep=Arccos(*inputs))
+            res = Tensor(result_np, dep=g.Arccos(*inputs))
         elif ufunc is np.arctan:
-            res = Tensor(result_np, dep=Arctan(*inputs))
+            res = Tensor(result_np, dep=g.Arctan(*inputs))
         elif ufunc is np.sinh:
-            res = Tensor(result_np, dep=Sinh(*inputs, result_np))
+            res = Tensor(result_np, dep=g.Sinh(*inputs, result_np))
         elif ufunc is np.cosh:
-            res = Tensor(result_np, dep=Cosh(*inputs))
+            res = Tensor(result_np, dep=g.Cosh(*inputs))
         elif ufunc is np.tanh:
-            res = Tensor(result_np, dep=Tanh(*inputs, result_np))
+            res = Tensor(result_np, dep=g.Tanh(*inputs, result_np))
         elif ufunc is np.arcsinh:
-            res = Tensor(result_np, dep=Arcsinh(*inputs))
+            res = Tensor(result_np, dep=g.Arcsinh(*inputs))
         elif ufunc is np.arccosh:
-            res = Tensor(result_np, dep=Arccosh(*inputs))
+            res = Tensor(result_np, dep=g.Arccosh(*inputs))
         elif ufunc is np.arctanh:
-            res = Tensor(result_np, dep=Arctanh(*inputs))
+            res = Tensor(result_np, dep=g.Arctanh(*inputs))
         elif ufunc is np.fmax:
             mask = inputs_np[0] > inputs_np[1]
-            res = Tensor(result_np, dep=Where(mask, *inputs))
+            res = Tensor(result_np, dep=g.Where(mask, *inputs))
         elif ufunc is np.fmin:
             mask = inputs_np[0] < inputs_np[1]
-            res = Tensor(result_np, dep=Where(mask, *inputs))
+            res = Tensor(result_np, dep=g.Where(mask, *inputs))
         else:
             return NotImplemented
 
@@ -202,30 +198,40 @@ class Tensor(np.ndarray):
     def reshape(self, *target_shape):
         res = Tensor(super().reshape(*target_shape), requires_grad=self.requires_grad)
         if self.requires_grad:
+            from .graph import Reshape
+
             res.dep = Reshape(self, self.shape)
         return res
 
     def squeeze(self, axis):
         res = Tensor(super().squeeze(axis), requires_grad=self.requires_grad)
         if self.requires_grad:
+            from .graph import Squeeze
+
             res.dep = Squeeze(self, axis)
         return res
 
     def expand_dims(self, axis):
         res = Tensor(np.expand_dims(super(), axis), requires_grad=self.requires_grad)
         if self.requires_grad:
+            from .graph import ExpandDims
+
             res.dep = ExpandDims(self, axis)
         return res
 
     def repeat(self, repeats, axis=None):
         res = Tensor(super().repeat(repeats, axis), requires_grad=self.requires_grad)
         if self.requires_grad:
+            from .graph import Repeat
+
             res.dep = Repeat(self, repeats, axis)
         return res
 
     def tile(self, *reps):
         res = Tensor(np.tile(super(), reps), requires_grad=self.requires_grad)
         if self.requires_grad:
+            from .graph import Tile
+
             res.dep = Tile(self, reps)
         return res
 
@@ -234,6 +240,3 @@ class Tensor(np.ndarray):
 
     def any(self, axis=None):
         return self.__array_ufunc__(np.logical_or, "reduce", self, axis=axis)
-
-
-from .graph import *  # avoid looped dependencies

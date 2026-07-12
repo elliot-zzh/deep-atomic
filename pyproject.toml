@@ -7,7 +7,7 @@ name = "deep_atomic"
 version = "0.2.0"
 description = "A simple deep learning framework built upon numpy only"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
     { name = "Elliot Zhang", email = "elliot_zh@proton.me" }

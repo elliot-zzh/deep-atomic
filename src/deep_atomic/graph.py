@@ -12,13 +12,13 @@ class Op(ABC):
         pass
 
 
-class SingleOp(Op):
+class UnaryOp(Op):
     def __init__(self, input: Tensor):
         self.input = input
         self.input.depended_count += 1
 
 
-class TwoOp(Op):
+class BinaryOp(Op):
     def __init__(self, a1, a2):
         self.a1_np, self.a2_np = (
             i.to_np() if isinstance(i, Tensor) else i for i in [a1, a2]
@@ -30,7 +30,7 @@ class TwoOp(Op):
             self.a2.depended_count += 1
 
 
-class Add(TwoOp):
+class Add(BinaryOp):
     def __init__(self, a1, a2, sub=False):
         super().__init__(a1, a2)
         self.sub = sub
@@ -45,7 +45,7 @@ class Add(TwoOp):
         self.a2.backward(grad)
 
 
-class Mul(TwoOp):
+class Mul(BinaryOp):
     def __init__(self, a1, a2):
         super().__init__(a1, a2)
 
@@ -56,7 +56,7 @@ class Mul(TwoOp):
             self.a2.backward(self.a1_np * grad)
 
 
-class Div(TwoOp):
+class Div(BinaryOp):
     def __init__(self, a1, a2):
         super().__init__(a1, a2)
 
@@ -67,7 +67,7 @@ class Div(TwoOp):
             self.a2.backward(-1 * self.a1_np / (self.a2_np**2) * grad)
 
 
-class MatMul(TwoOp):
+class MatMul(BinaryOp):
     def __init__(self, a1, a2):
         super().__init__(a1, a2)
 
@@ -78,7 +78,7 @@ class MatMul(TwoOp):
             self.a2.backward(self.a1_np.swapaxes(-1, -2) @ grad)
 
 
-class Exp(SingleOp):
+class Exp(UnaryOp):
     def __init__(
         self, input: Tensor
     ):  # node of exp is introduced only when the input is a Tensor
@@ -88,7 +88,7 @@ class Exp(SingleOp):
         self.input.backward(np.exp(self.input.to_np()) * grad)
 
 
-class Log(SingleOp):
+class Log(UnaryOp):
     def __init__(
         self, input: Tensor
     ):  # node of log is introduced only when the input is a Tensor
@@ -98,7 +98,7 @@ class Log(SingleOp):
         self.input.backward(1 / self.input.to_np() * grad)
 
 
-class Sigmoid(SingleOp):
+class Sigmoid(UnaryOp):
     def __init__(self, input: Tensor, output_np: np.ndarray):
         super().__init__(input)
         self.output_np = output_np
@@ -108,7 +108,7 @@ class Sigmoid(SingleOp):
         self.input.backward(self.output_np * (1 - self.output_np) * grad)
 
 
-class Sin(SingleOp):
+class Sin(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -116,7 +116,7 @@ class Sin(SingleOp):
         self.input.backward(np.cos(self.input.to_np()) * grad)
 
 
-class Cos(SingleOp):
+class Cos(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -124,7 +124,7 @@ class Cos(SingleOp):
         self.input.backward(-np.sin(self.input.to_np()) * grad)
 
 
-class Tan(SingleOp):
+class Tan(UnaryOp):
     def __init__(self, input: Tensor, output_np: np.ndarray):
         super().__init__(input)
         self.output_np = output_np
@@ -135,7 +135,7 @@ class Tan(SingleOp):
         )  # faster since only polynomials are concerned
 
 
-class Arcsin(SingleOp):
+class Arcsin(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -143,7 +143,7 @@ class Arcsin(SingleOp):
         self.input.backward(1 / (1 - self.input.to_np() ** 2) ** 0.5 * grad)
 
 
-class Arccos(SingleOp):
+class Arccos(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -151,7 +151,7 @@ class Arccos(SingleOp):
         self.input.backward(-1 / (1 - self.input.to_np() ** 2) ** 0.5 * grad)
 
 
-class Arctan(SingleOp):
+class Arctan(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -159,7 +159,7 @@ class Arctan(SingleOp):
         self.input.backward(1 / (self.input.to_np() ** 2 + 1) * grad)
 
 
-class Sinh(SingleOp):
+class Sinh(UnaryOp):
     def __init__(self, input: Tensor, output_np: np.ndarray):
         super().__init__(input)
         self.output_np = output_np
@@ -170,7 +170,7 @@ class Sinh(SingleOp):
         )  # faster since only polynomials are concerned
 
 
-class Cosh(SingleOp):
+class Cosh(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -178,7 +178,7 @@ class Cosh(SingleOp):
         self.input.backward(np.sinh(self.input.to_np()) * grad)
 
 
-class Tanh(SingleOp):
+class Tanh(UnaryOp):
     def __init__(self, input: Tensor, output_np: np.ndarray):
         super().__init__(input)
         self.output_np = output_np
@@ -189,7 +189,7 @@ class Tanh(SingleOp):
         )  # faster since only polynomials are concerned
 
 
-class Arcsinh(SingleOp):
+class Arcsinh(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -197,7 +197,7 @@ class Arcsinh(SingleOp):
         self.input.backward(1 / (self.input.to_np() ** 2 + 1) ** 0.5 * grad)
 
 
-class Arccosh(SingleOp):
+class Arccosh(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -205,7 +205,7 @@ class Arccosh(SingleOp):
         self.input.backward(1 / (self.input.to_np() ** 2 - 1) ** 0.5 * grad)
 
 
-class Arctanh(SingleOp):
+class Arctanh(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -213,7 +213,7 @@ class Arctanh(SingleOp):
         self.input.backward(1 / (1 - self.input.to_np() ** 2) * grad)
 
 
-class Pow(TwoOp):
+class Pow(BinaryOp):
     def __init__(self, a1, a2):
         super().__init__(a1, a2)
 
@@ -224,7 +224,7 @@ class Pow(TwoOp):
             self.a2.backward(np.log(self.a1_np) * (self.a1_np) ** (self.a2_np) * grad)
 
 
-class Sum(SingleOp):
+class Sum(UnaryOp):
     def __init__(self, input: Tensor, axis, keepdims):
         super().__init__(input)
         # TODO: need to handle when axis is a tuple of int that means reducing mutiple dims at a time
@@ -238,7 +238,7 @@ class Sum(SingleOp):
             self.input.backward(np.expand_dims(grad, self.axis))
 
 
-class Abs(SingleOp):
+class Abs(UnaryOp):
     def __init__(self, input: Tensor):
         super().__init__(input)
 
@@ -246,7 +246,7 @@ class Abs(SingleOp):
         self.input.backward(np.where(grad < 0, -grad, grad))
 
 
-class MinMax(SingleOp):
+class MinMax(UnaryOp):
     def __init__(
         self, input: Tensor, axis, keepdims, indices=None, full_red_value=None
     ):
@@ -282,7 +282,7 @@ class MinMax(SingleOp):
         self.input.backward(np.where(mask, grad, 0.0))
 
 
-class Reshape(SingleOp):
+class Reshape(UnaryOp):
     def __init__(self, input: Tensor, from_):
         super().__init__(input)
         self.from_ = from_
@@ -291,7 +291,7 @@ class Reshape(SingleOp):
         self.input.backward(grad.reshape(self.from_))
 
 
-class Squeeze(SingleOp):
+class Squeeze(UnaryOp):
     def __init__(self, input: Tensor, axis):
         super().__init__(input)
         self.axis = axis
@@ -300,7 +300,7 @@ class Squeeze(SingleOp):
         self.input.backward(np.expand_dims(grad, self.axis))
 
 
-class ExpandDims(SingleOp):
+class ExpandDims(UnaryOp):
     def __init__(self, input: Tensor, axis):
         super().__init__(input)
         self.axis = axis
@@ -309,7 +309,7 @@ class ExpandDims(SingleOp):
         self.input.backward(grad.squeeze(self.axis))
 
 
-class Repeat(SingleOp):
+class Repeat(UnaryOp):
     def __init__(self, input: Tensor, repeats, axis=None):
         super().__init__(input)
         self.repeats = repeats
@@ -318,7 +318,7 @@ class Repeat(SingleOp):
     def backward(self, grad):
         if isinstance(self.repeats, int):
             if self.axis is None:
-                grad = grad.reshape(-1, self.repeats).sum(axis=-1)
+                grad = grad.reshape(*self.input.shape, self.repeats).sum(axis=-1)
             else:
                 shape = list(grad.shape)
                 shape[self.axis] //= self.repeats
@@ -333,6 +333,7 @@ class Repeat(SingleOp):
                     if r > 0:
                         grad_[i] = grad[start : start + r].sum()
                     start += r
+                grad_ = grad_.reshape(self.input.shape)
             else:
                 moved = np.moveaxis(grad, self.axis, 0)
                 grad_ = np.zeros(self.input.shape, dtype=grad.dtype)
@@ -346,7 +347,7 @@ class Repeat(SingleOp):
             self.input.backward(grad_)
 
 
-class Tile(SingleOp):
+class Tile(UnaryOp):
     def __init__(self, input: Tensor, reps):
         super().__init__(input)
         self.reps = reps
@@ -364,7 +365,7 @@ class Tile(SingleOp):
 
 
 # the condition is not differentiatable, so still two-operanded
-class Where(TwoOp):
+class Where(BinaryOp):
     def __init__(self, condition, a1, a2):
         super().__init__(a1, a2)
         if isinstance(condition, Tensor):
@@ -378,7 +379,7 @@ class Where(TwoOp):
             self.a2.backward(np.where(self.condition, 0, grad))
 
 
-class TakeAlongAxis(SingleOp):
+class TakeAlongAxis(UnaryOp):
     def __init__(self, input: Tensor, indices, axis):
         super().__init__(input)
         self.indices, self.axis = indices, axis

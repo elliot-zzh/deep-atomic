@@ -5,7 +5,6 @@ from .tensor import *
 from .utils import *
 
 
-# implement add, sub, mul, div etc. here
 def add(a1, a2):
     return a1.__array_ufunc__(np.add, "__call__", a1, a2)
 
@@ -204,7 +203,7 @@ def expand_dims(input: Tensor, axis):
     return input.expand_dims(axis)
 
 
-def repeats(input: Tensor, repeats, axis=None):
+def repeat(input: Tensor, repeats, axis=None):
     return input.repeat(repeats, axis)
 
 
