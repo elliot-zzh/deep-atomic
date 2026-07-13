@@ -132,7 +132,12 @@ def log_softmax(x: Tensor, axis=-1, temperature=1):
 
 
 def sigmoid(x: Tensor):
-    res = 1 / (1 + exp(-x))
+    pos = x.to_np() > 0
+    x_np = x.to_np()
+    res = np.zeros(x.shape)
+    res[pos] = 1 / (1 + exp(-x_np[pos]))
+    res[~pos] = exp(x_np[~pos]) / (1 + exp(x_np[~pos]))
+    res = Tensor(res, requires_grad=x.requires_grad)
     if res.requires_grad:
         res.dep = Sigmoid(x, res.to_np())
     return res
