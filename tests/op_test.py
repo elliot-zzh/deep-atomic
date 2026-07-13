@@ -4,7 +4,7 @@ from tempfile import tempdir
 import numpy as np
 import pytest
 
-from deep_atomic import *
+import deep_atomic as da
 
 from .utils import *
 
@@ -104,15 +104,15 @@ class TestUnaryMath:
     @pytest.mark.parametrize(
         "op",
         [
-            (exp, np.exp),
-            (sin, np.sin),
-            (sin, np.sin),
-            (tan, np.tan),
-            (arctan, np.arctan),
-            (sinh, np.sinh),
-            (cosh, np.cosh),
-            (tanh, np.tanh),
-            (arcsinh, np.arcsinh),
+            (da.exp, np.exp),
+            (da.sin, np.sin),
+            (da.sin, np.sin),
+            (da.tan, np.tan),
+            (da.arctan, np.arctan),
+            (da.sinh, np.sinh),
+            (da.cosh, np.cosh),
+            (da.tanh, np.tanh),
+            (da.arcsinh, np.arcsinh),
         ],
     )
     class TestDomainReal:
@@ -123,7 +123,7 @@ class TestUnaryMath:
             _test_unary_grad(make_unary(low=-5, high=5), op[0])
 
     @pytest.mark.parametrize(
-        "op", [(arcsin, np.arcsin), (arccos, np.arccos), (arctanh, np.arctanh)]
+        "op", [(da.arcsin, np.arcsin), (da.arccos, np.arccos), (da.arctanh, np.arctanh)]
     )
     class TestDomainMinus1ToPlus1:
         def test_forward(self, make_unary, op):
@@ -134,36 +134,38 @@ class TestUnaryMath:
 
     class TestLog:
         def test_forward(self, make_unary):
-            _test_unary_forward(make_unary(low=0, high=1e3), log, np.log)
+            _test_unary_forward(make_unary(low=0, high=1e3), da.log, np.log)
 
         def test_grad(self, make_unary):
-            _test_unary_grad(make_unary(low=0, high=1e3), log)
+            _test_unary_grad(make_unary(low=0, high=1e3), da.log)
 
     class TestArccosh:
         def test_forward(self, make_unary):
-            _test_unary_forward(make_unary(low=1, high=1e3), arccosh, np.arccosh)
+            _test_unary_forward(make_unary(low=1, high=1e3), da.arccosh, np.arccosh)
 
         def test_grad(self, make_unary):
-            _test_unary_grad(make_unary(low=1, high=1e3), arccosh)
+            _test_unary_grad(make_unary(low=1, high=1e3), da.arccosh)
 
 
 # these are not basic operations so we do not test their forward passing
 # test their backward passing though, to test the correctness when deeper computational graph is concerned
 class TestActivations:
-    @pytest.mark.parametrize("op", [softmax, log_softmax])
+    @pytest.mark.parametrize("op", [da.softmax, da.log_softmax])
     @pytest.mark.parametrize("axis", [0, 1])
     class TestSoftmax:
         def test_grad(self, unary, op, axis):
             _test_unary_grad(unary, op, axis=axis)
 
-    @pytest.mark.parametrize("op", [sigmoid, relu, silu, gelu])
+    @pytest.mark.parametrize("op", [da.sigmoid, da.relu, da.silu, da.gelu])
     class TestOthers:
         def test_grad(self, unary, op):
             _test_unary_grad(unary, op)
 
 
 class TestRecductions:
-    @pytest.mark.parametrize("op", [(sum, np.sum), (max, np.max), (min, np.min)])
+    @pytest.mark.parametrize(
+        "op", [(da.sum, np.sum), (da.max, np.max), (da.min, np.min)]
+    )
     @pytest.mark.parametrize("axis", [0, 1])
     @pytest.mark.parametrize("keepdims", [True, False])
     class TestWithGrad:
@@ -173,7 +175,7 @@ class TestRecductions:
         def test_grad(self, unary, op, axis, keepdims):
             _test_unary_grad(unary, op[0], axis=axis, keepdims=keepdims)
 
-    @pytest.mark.parametrize("op", [(argmin, np.argmin), (argmax, np.argmax)])
+    @pytest.mark.parametrize("op", [(da.argmin, np.argmin), (da.argmax, np.argmax)])
     @pytest.mark.parametrize("axis", [0, 1])
     @pytest.mark.parametrize("keepdims", [True, False])
     class TestWithoutGrad:
@@ -199,7 +201,7 @@ class TestComparison:
         def test_forward(self, make_binary, op, size1, size2):
             _test_binary_forward(make_binary(size1=size1, size2=size2), op, op)
 
-    @pytest.mark.parametrize("op", [(fmax, np.fmax), (fmin, np.fmin)])
+    @pytest.mark.parametrize("op", [(da.fmax, np.fmax), (da.fmin, np.fmin)])
     @pytest.mark.parametrize("size1", [(3, 4)])
     @pytest.mark.parametrize("size2", [(3, 4), (3, 1), (4,)])
     class TestFMaxMin:
@@ -214,9 +216,9 @@ class TestLogical:
     @pytest.mark.parametrize(
         "op",
         [
-            (logical_and, np.logical_and),
-            (logical_or, np.logical_or),
-            (logical_xor, np.logical_xor),
+            (da.logical_and, np.logical_and),
+            (da.logical_or, np.logical_or),
+            (da.logical_xor, np.logical_xor),
         ],
     )
     @pytest.mark.parametrize("size1", [(3, 4)])
@@ -224,22 +226,22 @@ class TestLogical:
     class TestBinary:
         def test_forward(self, rng, op, size1, size2):
             binary = (
-                Tensor(rng.choice([True, False], size=size1)),
-                Tensor(rng.choice([True, False], size=size2)),
+                da.Tensor(rng.choice([True, False], size=size1)),
+                da.Tensor(rng.choice([True, False], size=size2)),
             )
             _test_binary_forward(binary, *op)
 
     class TestLogicalNot:
         def test_forward(self, rng):
-            unary = Tensor(rng.choice([True, False], size=(3, 4)))
-            _test_unary_forward(unary, logical_not, np.logical_not)
+            unary = da.Tensor(rng.choice([True, False], size=(3, 4)))
+            _test_unary_forward(unary, da.logical_not, np.logical_not)
 
-    @pytest.mark.parametrize("op", [(any, np.any), (all, np.all)])
+    @pytest.mark.parametrize("op", [(da.any, np.any), (da.all, np.all)])
     @pytest.mark.parametrize("axis", [0, 1])
     @pytest.mark.parametrize("keepdims", [True, False])
     class TestReductions:
         def test_forward(self, rng, op, axis, keepdims):
-            unary = Tensor(rng.choice([True, False], size=(3, 4)))
+            unary = da.Tensor(rng.choice([True, False], size=(3, 4)))
             _test_unary_forward(unary, *op, axis=axis, keepdims=keepdims)
 
 
@@ -247,10 +249,10 @@ class TestShapeOps:
     @pytest.mark.parametrize("axis", [0, 1, 2])
     class TestExpandDims:
         def test_forward(self, unary, axis):
-            _test_unary_forward(unary, expand_dims, np.expand_dims, axis=axis)
+            _test_unary_forward(unary, da.expand_dims, np.expand_dims, axis=axis)
 
         def test_grad(self, unary, axis):
-            _test_unary_grad(unary, expand_dims, axis=axis)
+            _test_unary_grad(unary, da.expand_dims, axis=axis)
 
     @pytest.mark.parametrize("size", [(3, 4, 1), (3, 1, 4)])
     class TestSqueeze:
@@ -260,7 +262,7 @@ class TestShapeOps:
             for i, v in enumerate(t.shape):
                 if v == 1:
                     axis = i
-            _test_unary_forward(t, squeeze, np.squeeze, axis=axis)
+            _test_unary_forward(t, da.squeeze, np.squeeze, axis=axis)
 
         def test_grad(self, make_unary, size):
             t = make_unary(size=size)
@@ -268,7 +270,7 @@ class TestShapeOps:
             for i, v in enumerate(t.shape):
                 if v == 1:
                     axis = i
-            _test_unary_grad(t, squeeze, axis=axis)
+            _test_unary_grad(t, da.squeeze, axis=axis)
 
     @pytest.mark.parametrize(
         "repeats_axis",
@@ -282,14 +284,14 @@ class TestShapeOps:
     class TestRepeat:
         def test_forward(self, unary, repeats_axis):
             repeats, axis = repeats_axis
-            _test_unary_forward(unary, repeat, np.repeat, repeats=repeats, axis=axis)
+            _test_unary_forward(unary, da.repeat, np.repeat, repeats=repeats, axis=axis)
 
         def test_grad(self, unary, repeats_axis):
             repeats, axis = repeats_axis
             log_softmax_axis = -1 if axis is None else axis
             _test_unary_grad(
                 unary,
-                lambda x: log_softmax(
+                lambda x: da.log_softmax(
                     x.repeat(repeats, axis=axis), axis=log_softmax_axis
                 ),
             )
@@ -297,29 +299,29 @@ class TestShapeOps:
     @pytest.mark.parametrize("reps", [(3,), (2, 3), (2, 2, 3)])
     class TestTile:
         def test_forward(self, unary, reps):
-            _test_unary_forward(unary, tile, np.tile, reps=reps)
+            _test_unary_forward(unary, da.tile, np.tile, reps=reps)
 
         def test_grad(self, unary, reps):
             # use more complex test to deepen the graph
-            _test_unary_grad(unary, lambda a: log_softmax(a.tile(*reps)))
+            _test_unary_grad(unary, lambda a: da.log_softmax(a.tile(*reps)))
 
     @pytest.mark.parametrize("size1", [(3, 4), (2, 3, 4)])
     class TestWhere:
         def test_forward(self, rng, make_binary, size1):
             t1, _ = make_binary(size1=size1)
-            condition = Tensor(rng.choice([True, False], size=t1.shape))
+            condition = da.Tensor(rng.choice([True, False], size=t1.shape))
             _test_binary_forward(
                 make_binary(size1=size1),
-                lambda a, b: where(condition, a, b),
+                lambda a, b: da.where(condition, a, b),
                 lambda a, b: np.where(condition.to_np(), a, b),
             )
 
         def test_grad(self, rng, make_binary, size1):
             t1, _ = make_binary(size1=size1)
-            condition = Tensor(rng.choice([True, False], size=t1.shape))
+            condition = da.Tensor(rng.choice([True, False], size=t1.shape))
             _test_binary_grad(
                 make_binary(size1=size1),
-                lambda a, b: where(condition, a, b),
+                lambda a, b: da.where(condition, a, b),
             )
 
     @pytest.mark.parametrize("target_shape", [(2, 6), (3, 2, 2)])
@@ -327,14 +329,14 @@ class TestShapeOps:
         def test_forward(self, unary, target_shape):
             _test_unary_forward(
                 unary,
-                lambda x: reshape(x, target_shape=target_shape),
+                lambda x: da.reshape(x, target_shape=target_shape),
                 lambda x: np.reshape(x, shape=target_shape),
             )
 
         def test_grad(self, unary, target_shape):
             # use more complex test to deepen the graph
             _test_unary_grad(
-                unary, lambda x: log_softmax(x.reshape(target_shape), axis=-1)
+                unary, lambda x: da.log_softmax(x.reshape(target_shape), axis=-1)
             )
 
 
@@ -344,12 +346,12 @@ class TestSelection:
             # numpy does not have direct equivalence to topk
             # and given topk's complexity, we hardwired this test
             def test_largest(self):
-                t = Tensor(np.array([[1, 2, 3], [6, 4, 5]]))
+                t = da.Tensor(np.array([[1, 2, 3], [6, 4, 5]]))
 
                 # largest
-                expected_values = Tensor(np.array([[2, 3], [5, 6]]))
-                expected_indices = Tensor(np.array([[1, 2], [2, 0]]))
-                values, indices = topk(t, 2, axis=-1)
+                expected_values = da.Tensor(np.array([[2, 3], [5, 6]]))
+                expected_indices = da.Tensor(np.array([[1, 2], [2, 0]]))
+                values, indices = da.topk(t, 2, axis=-1)
                 assert (
                     np.sort(values.to_np(), axis=-1) == expected_values
                 ).all()  # sort to ensure order
@@ -361,12 +363,12 @@ class TestSelection:
                 ).all()  # sort then gather to ensure correct mapping
 
             def test_smallest(self):
-                t = Tensor(np.array([[1, 2, 3], [6, 4, 5]]))
+                t = da.Tensor(np.array([[1, 2, 3], [6, 4, 5]]))
 
                 # smallest
-                expected_values = Tensor(np.array([[1, 2], [4, 5]]))
-                expected_indices = Tensor(np.array([[0, 1], [1, 2]]))
-                values, indices = topk(t, 2, axis=-1, largest=False)
+                expected_values = da.Tensor(np.array([[1, 2], [4, 5]]))
+                expected_indices = da.Tensor(np.array([[0, 1], [1, 2]]))
+                values, indices = da.topk(t, 2, axis=-1, largest=False)
                 assert (np.sort(values.to_np(), axis=-1) == expected_values).all()
                 assert (
                     np.take_along_axis(
@@ -380,5 +382,5 @@ class TestSelection:
         @pytest.mark.parametrize("largest", [True, False])
         def test_grad(self, unary, axis, kth, largest):
             _test_unary_grad(
-                unary, lambda x: topk(x, axis=axis, kth=kth, largest=largest)[0]
+                unary, lambda x: da.topk(x, axis=axis, kth=kth, largest=largest)[0]
             )

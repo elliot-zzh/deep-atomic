@@ -1,41 +1,41 @@
 import numpy as np
 import pytest
 
-from deep_atomic import *
+import deep_atomic as da
 
 
 def test_init():
-    assert (np.array([1, 2, 3]) == Tensor(np.array([1, 2, 3])).to_np()).all()
+    assert (np.array([1, 2, 3]) == da.Tensor(np.array([1, 2, 3])).to_np()).all()
     assert (
-        np.array([[1, 2], [3, 4]]) == Tensor(np.array([[1, 2], [3, 4]])).to_np()
+        np.array([[1, 2], [3, 4]]) == da.Tensor(np.array([[1, 2], [3, 4]])).to_np()
     ).all()
     assert (
         np.array([[1, 2], [3, 4]])
-        == Tensor(np.array([[1, 2], [3, 4]]), requires_grad=True).to_np()
+        == da.Tensor(np.array([[1, 2], [3, 4]]), requires_grad=True).to_np()
     ).all()
 
     # test float
     assert (
-        np.array([1.0, 2.0, 3.0]) == Tensor(np.array([1.0, 2.0, 3.0])).to_np()
+        np.array([1.0, 2.0, 3.0]) == da.Tensor(np.array([1.0, 2.0, 3.0])).to_np()
     ).all()
     assert (
         np.array([[1.0, 2.0], [3.0, 4.0]])
-        == Tensor(np.array([[1.0, 2.0], [3.0, 4.0]])).to_np()
+        == da.Tensor(np.array([[1.0, 2.0], [3.0, 4.0]])).to_np()
     ).all()
 
     # test conversion from ndarray
-    assert (np.array([1, 2, 3]) == Tensor(np.array([1, 2, 3])).to_np()).all()
+    assert (np.array([1, 2, 3]) == da.Tensor(np.array([1, 2, 3])).to_np()).all()
     assert (
-        np.array([[1, 2], [3, 4]]) == Tensor(np.array([[1, 2], [3, 4]])).to_np()
+        np.array([[1, 2], [3, 4]]) == da.Tensor(np.array([[1, 2], [3, 4]])).to_np()
     ).all()
     assert (
         np.array([[1, 2], [3, 4]])
-        == Tensor(np.array([[1, 2], [3, 4]]), requires_grad=True).to_np()
+        == da.Tensor(np.array([[1, 2], [3, 4]]), requires_grad=True).to_np()
     ).all()
     assert (
-        np.array([1.0, 2.0, 3.0]) == Tensor(np.array([1.0, 2.0, 3.0])).to_np()
+        np.array([1.0, 2.0, 3.0]) == da.Tensor(np.array([1.0, 2.0, 3.0])).to_np()
     ).all()
     assert (
         np.array([[1.0, 2.0], [3.0, 4.0]])
-        == Tensor(np.array([[1.0, 2.0], [3.0, 4.0]])).to_np()
+        == da.Tensor(np.array([[1.0, 2.0], [3.0, 4.0]])).to_np()
     ).all()

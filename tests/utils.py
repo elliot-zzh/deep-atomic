@@ -1,7 +1,5 @@
 import numpy as np
 
-from deep_atomic import *
-
 
 def assert_close(expected, actual, rtol=5e-05, atol=1e-08):
     delta = np.abs(actual - expected)
