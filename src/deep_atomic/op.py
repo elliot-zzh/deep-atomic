@@ -1,6 +1,6 @@
 import numpy as np
 
-from .graph import *
+from . import graph as g
 from .tensor import *
 from .utils import *
 
@@ -89,10 +89,10 @@ def max(x: Tensor, axis=None, keepdims=False):
     if x.requires_grad:
         res.requires_grad = True
         if axis == None:
-            res.dep = MinMax(x, None, keepdims, full_red_value=res.to_np())
+            res.dep = g.MinMax(x, None, keepdims, full_red_value=res.to_np())
         else:
             indices = np.argmax(x.to_np(), axis=axis, keepdims=True)
-            res.dep = MinMax(x, axis, keepdims, indices=indices)
+            res.dep = g.MinMax(x, axis, keepdims, indices=indices)
     return res
 
 
@@ -101,10 +101,10 @@ def min(x: Tensor, axis=None, keepdims=False):
     if x.requires_grad:
         res.requires_grad = True
         if axis == None:
-            res.dep = MinMax(x, None, keepdims, full_red_value=res.to_np())
+            res.dep = g.MinMax(x, None, keepdims, full_red_value=res.to_np())
         else:
             indices = np.argmin(x.to_np(), axis=axis, keepdims=True)
-            res.dep = MinMax(x, axis, keepdims, indices=indices)
+            res.dep = g.MinMax(x, axis, keepdims, indices=indices)
     return res
 
 
@@ -155,7 +155,7 @@ def sigmoid(x: Tensor):
     res[~pos] = exp(x_np[~pos]) / (1 + exp(x_np[~pos]))
     res = Tensor(res, requires_grad=x.requires_grad)
     if res.requires_grad:
-        res.dep = Sigmoid(x, res.to_np())
+        res.dep = g.Sigmoid(x, res.to_np())
     return res
 
 
@@ -247,7 +247,7 @@ def where(condition, x1, x2):
             requires_grad = True
     res = Tensor(np.where(condition, x1, x2), requires_grad=requires_grad)
     if res.requires_grad:
-        res.dep = Where(condition, x1, x2)
+        res.dep = g.Where(condition, x1, x2)
     return res
 
 
@@ -257,7 +257,7 @@ def take_along_axis(x: Tensor, indices, axis=-1):
         indices = indices.to_np()  # cut off gradient
     res = Tensor(np.take_along_axis(x, indices, axis), requires_grad=x.requires_grad)
     if res.requires_grad:
-        res.dep = TakeAlongAxis(x, indices, axis)
+        res.dep = g.TakeAlongAxis(x, indices, axis)
     return res
 
 
