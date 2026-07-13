@@ -84,12 +84,12 @@ class Tensor(np.ndarray):
         # type conversion
         inputs_np = []
         requires_grad = self.requires_grad
-        for input_ in inputs:
-            if isinstance(input_, Tensor):
-                inputs_np.append(input_.to_np())
-                requires_grad = requires_grad or input_.requires_grad
+        for arg in inputs:
+            if isinstance(arg, Tensor):
+                inputs_np.append(arg.to_np())
+                requires_grad = requires_grad or arg.requires_grad
             else:
-                inputs_np.append(input_)
+                inputs_np.append(arg)
 
         if "out" in kwargs and kwargs["out"] is not None:
             if not isinstance(kwargs["out"], tuple):
