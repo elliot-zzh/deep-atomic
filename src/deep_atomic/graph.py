@@ -13,9 +13,9 @@ class Op(ABC):
 
 
 class UnaryOp(Op):
-    def __init__(self, input: Tensor):
-        self.input = input
-        self.input.depended_count += 1
+    def __init__(self, a: Tensor):
+        self.a = a
+        self.a.depended_count += 1
 
 
 class BinaryOp(Op):
@@ -80,137 +80,137 @@ class MatMul(BinaryOp):
 
 class Exp(UnaryOp):
     def __init__(
-        self, input: Tensor
+        self, a: Tensor
     ):  # node of exp is introduced only when the input is a Tensor
-        super().__init__(input)
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(np.exp(self.input.to_np()) * grad)
+        self.a.backward(np.exp(self.a.to_np()) * grad)
 
 
 class Log(UnaryOp):
     def __init__(
-        self, input: Tensor
+        self, a: Tensor
     ):  # node of log is introduced only when the input is a Tensor
-        super().__init__(input)
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(1 / self.input.to_np() * grad)
+        self.a.backward(1 / self.a.to_np() * grad)
 
 
 class Sigmoid(UnaryOp):
-    def __init__(self, input: Tensor, output_np: np.ndarray):
-        super().__init__(input)
+    def __init__(self, a: Tensor, output_np: np.ndarray):
+        super().__init__(a)
         self.output_np = output_np
 
     def backward(self, grad):
         # TODO: input's actual value is no longer useful during backward, and can be released to increase memory efficiency
-        self.input.backward(self.output_np * (1 - self.output_np) * grad)
+        self.a.backward(self.output_np * (1 - self.output_np) * grad)
 
 
 class Sin(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(np.cos(self.input.to_np()) * grad)
+        self.a.backward(np.cos(self.a.to_np()) * grad)
 
 
 class Cos(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(-np.sin(self.input.to_np()) * grad)
+        self.a.backward(-np.sin(self.a.to_np()) * grad)
 
 
 class Tan(UnaryOp):
-    def __init__(self, input: Tensor, output_np: np.ndarray):
-        super().__init__(input)
+    def __init__(self, a: Tensor, output_np: np.ndarray):
+        super().__init__(a)
         self.output_np = output_np
 
     def backward(self, grad):
-        self.input.backward(
+        self.a.backward(
             (1 + self.output_np**2) * grad
         )  # faster since only polynomials are concerned
 
 
 class Arcsin(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(1 / (1 - self.input.to_np() ** 2) ** 0.5 * grad)
+        self.a.backward(1 / (1 - self.a.to_np() ** 2) ** 0.5 * grad)
 
 
 class Arccos(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(-1 / (1 - self.input.to_np() ** 2) ** 0.5 * grad)
+        self.a.backward(-1 / (1 - self.a.to_np() ** 2) ** 0.5 * grad)
 
 
 class Arctan(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(1 / (self.input.to_np() ** 2 + 1) * grad)
+        self.a.backward(1 / (self.a.to_np() ** 2 + 1) * grad)
 
 
 class Sinh(UnaryOp):
-    def __init__(self, input: Tensor, output_np: np.ndarray):
-        super().__init__(input)
+    def __init__(self, a: Tensor, output_np: np.ndarray):
+        super().__init__(a)
         self.output_np = output_np
 
     def backward(self, grad):
-        self.input.backward(
+        self.a.backward(
             (1 + self.output_np**2) ** 0.5 * grad
         )  # faster since only polynomials are concerned
 
 
 class Cosh(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(np.sinh(self.input.to_np()) * grad)
+        self.a.backward(np.sinh(self.a.to_np()) * grad)
 
 
 class Tanh(UnaryOp):
-    def __init__(self, input: Tensor, output_np: np.ndarray):
-        super().__init__(input)
+    def __init__(self, a: Tensor, output_np: np.ndarray):
+        super().__init__(a)
         self.output_np = output_np
 
     def backward(self, grad):
-        self.input.backward(
+        self.a.backward(
             (1 - self.output_np**2) * grad
         )  # faster since only polynomials are concerned
 
 
 class Arcsinh(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(1 / (self.input.to_np() ** 2 + 1) ** 0.5 * grad)
+        self.a.backward(1 / (self.a.to_np() ** 2 + 1) ** 0.5 * grad)
 
 
 class Arccosh(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(1 / (self.input.to_np() ** 2 - 1) ** 0.5 * grad)
+        self.a.backward(1 / (self.a.to_np() ** 2 - 1) ** 0.5 * grad)
 
 
 class Arctanh(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(1 / (1 - self.input.to_np() ** 2) * grad)
+        self.a.backward(1 / (1 - self.a.to_np() ** 2) * grad)
 
 
 class Pow(BinaryOp):
@@ -225,32 +225,30 @@ class Pow(BinaryOp):
 
 
 class Sum(UnaryOp):
-    def __init__(self, input: Tensor, axis, keepdims):
-        super().__init__(input)
+    def __init__(self, a: Tensor, axis, keepdims):
+        super().__init__(a)
         # TODO: need to handle when axis is a tuple of int that means reducing mutiple dims at a time
         self.axis = axis
         self.keepdims = keepdims
 
     def backward(self, grad):
         if self.axis is None or self.keepdims:
-            self.input.backward(grad)
+            self.a.backward(grad)
         else:
-            self.input.backward(np.expand_dims(grad, self.axis))
+            self.a.backward(np.expand_dims(grad, self.axis))
 
 
 class Abs(UnaryOp):
-    def __init__(self, input: Tensor):
-        super().__init__(input)
+    def __init__(self, a: Tensor):
+        super().__init__(a)
 
     def backward(self, grad):
-        self.input.backward(np.where(grad < 0, -grad, grad))
+        self.a.backward(np.where(grad < 0, -grad, grad))
 
 
 class MinMax(UnaryOp):
-    def __init__(
-        self, input: Tensor, axis, keepdims, indices=None, full_red_value=None
-    ):
-        super().__init__(input)
+    def __init__(self, a: Tensor, axis, keepdims, indices=None, full_red_value=None):
+        super().__init__(a)
         self.indices = indices  # result of argmin / argmax. when axis is not None
         self.axis, self.keepdims = axis, keepdims
         self.full_red_value = full_red_value  # for faster compute when axis is None
@@ -262,69 +260,69 @@ class MinMax(UnaryOp):
     def backward(self, grad):
         if self.axis is None:
             if not self.keepdims:
-                grad = np.tile(grad, self.input.shape)
-            mask = self.input.to_np() == self.full_red_value
+                grad = np.tile(grad, self.a.shape)
+            mask = self.a.to_np() == self.full_red_value
             grad /= np.count_nonzero(
                 mask
             )  # distribute gradient evenly across max values. following pytorch implementation
         else:
             if not self.keepdims:
-                tile_reps = [1] * self.input.ndim
-                tile_reps[self.axis] = self.input.shape[self.axis]
+                tile_reps = [1] * self.a.ndim
+                tile_reps[self.axis] = self.a.shape[self.axis]
                 grad = np.expand_dims(grad, axis=self.axis)
                 grad = np.tile(grad, tile_reps)
-            baseline_expansion_axis = list(range(self.input.ndim))
+            baseline_expansion_axis = list(range(self.a.ndim))
             baseline_expansion_axis.pop(self.axis)
             baseline_indices = np.expand_dims(
-                np.arange(self.input.shape[self.axis]), axis=baseline_expansion_axis
+                np.arange(self.a.shape[self.axis]), axis=baseline_expansion_axis
             )
             mask = self.indices == baseline_indices
-        self.input.backward(np.where(mask, grad, 0.0))
+        self.a.backward(np.where(mask, grad, 0.0))
 
 
 class Reshape(UnaryOp):
-    def __init__(self, input: Tensor, from_):
-        super().__init__(input)
+    def __init__(self, a: Tensor, from_):
+        super().__init__(a)
         self.from_ = from_
 
     def backward(self, grad):
-        self.input.backward(grad.reshape(self.from_))
+        self.a.backward(grad.reshape(self.from_))
 
 
 class Squeeze(UnaryOp):
-    def __init__(self, input: Tensor, axis):
-        super().__init__(input)
+    def __init__(self, a: Tensor, axis):
+        super().__init__(a)
         self.axis = axis
 
     def backward(self, grad):
-        self.input.backward(np.expand_dims(grad, self.axis))
+        self.a.backward(np.expand_dims(grad, self.axis))
 
 
 class ExpandDims(UnaryOp):
-    def __init__(self, input: Tensor, axis):
-        super().__init__(input)
+    def __init__(self, a: Tensor, axis):
+        super().__init__(a)
         self.axis = axis
 
     def backward(self, grad):
-        self.input.backward(grad.squeeze(self.axis))
+        self.a.backward(grad.squeeze(self.axis))
 
 
 class Repeat(UnaryOp):
-    def __init__(self, input: Tensor, repeats, axis=None):
-        super().__init__(input)
+    def __init__(self, a: Tensor, repeats, axis=None):
+        super().__init__(a)
         self.repeats = repeats
         self.axis = axis
 
     def backward(self, grad):
         if isinstance(self.repeats, int):
             if self.axis is None:
-                grad = grad.reshape(*self.input.shape, self.repeats).sum(axis=-1)
+                grad = grad.reshape(*self.a.shape, self.repeats).sum(axis=-1)
             else:
                 shape = list(grad.shape)
                 shape[self.axis] //= self.repeats
                 shape.insert(self.axis + 1, self.repeats)
                 grad = grad.reshape(shape).sum(axis=self.axis + 1)
-            self.input.backward(grad)
+            self.a.backward(grad)
         else:
             if self.axis is None:
                 grad_ = np.zeros(len(self.repeats), dtype=grad.dtype)
@@ -333,23 +331,23 @@ class Repeat(UnaryOp):
                     if r > 0:
                         grad_[i] = grad[start : start + r].sum()
                     start += r
-                grad_ = grad_.reshape(self.input.shape)
+                grad_ = grad_.reshape(self.a.shape)
             else:
                 moved = np.moveaxis(grad, self.axis, 0)
-                grad_ = np.zeros(self.input.shape, dtype=grad.dtype)
+                grad_ = np.zeros(self.a.shape, dtype=grad.dtype)
                 start = 0
                 for i, r in enumerate(self.repeats):
                     if r > 0:
-                        idx = [slice(None)] * self.input.ndim
+                        idx = [slice(None)] * self.a.ndim
                         idx[self.axis] = i
                         grad_[tuple(idx)] = moved[start : start + r].sum(axis=0)
                     start += r
-            self.input.backward(grad_)
+            self.a.backward(grad_)
 
 
 class Tile(UnaryOp):
-    def __init__(self, input: Tensor, reps):
-        super().__init__(input)
+    def __init__(self, a: Tensor, reps):
+        super().__init__(a)
         self.reps = reps
 
     def backward(self, grad):
@@ -360,8 +358,8 @@ class Tile(UnaryOp):
             shape.insert(i + 1, r)
             grad = grad.reshape(shape, order="F").sum(axis=i + 1)
         if grad.ndim < len(self.reps):
-            grad = grad.reshape(self.input.shape)
-        self.input.backward(grad)
+            grad = grad.reshape(self.a.shape)
+        self.a.backward(grad)
 
 
 # the condition is not differentiatable, so still two-operanded
@@ -380,11 +378,11 @@ class Where(BinaryOp):
 
 
 class TakeAlongAxis(UnaryOp):
-    def __init__(self, input: Tensor, indices, axis):
-        super().__init__(input)
+    def __init__(self, a: Tensor, indices, axis):
+        super().__init__(a)
         self.indices, self.axis = indices, axis
 
     def backward(self, grad):
-        grad_ = np.zeros(self.input.shape)
+        grad_ = np.zeros(self.a.shape)
         np.put_along_axis(grad_, self.indices, grad, self.axis)
-        self.input.backward(grad_)
+        self.a.backward(grad_)
