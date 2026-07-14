@@ -46,7 +46,7 @@ class Module(ABC):
         pass
 
     def __call__(self, *args, **kwargs):
-        self.forward(*args, **kwargs)
+        return self.forward(*args, **kwargs)
 
     def __init__(self):
         # TODO: use OrderedDict?
@@ -72,19 +72,19 @@ class Module(ABC):
         for name, buffer in self._buffers.items():
             state_dict_[prefix + name] = buffer
         for name, module in self._modules.items():
-            state_dict_ = {**state_dict_, **module.state_dict(prefix=name)}
+            state_dict_ = {**state_dict_, **module.state_dict(prefix=prefix + name)}
         return state_dict_
 
     def modules(self, recurse=True):
-        for _name, module in self.named_modules(recurse=recurse):
+        for _name, module in self.named_modules():
             yield module
 
-    def named_module(self, prefix="", remove_duplicate=True, memo=None):
+    def named_modules(self, prefix="", remove_duplicate=True, memo=None):
         if memo is None:
             memo = set()
-        if self not in memo:
+        if id(self) not in memo:
             if remove_duplicate:
-                memo.add(self)
+                memo.add(id(self))
             yield prefix, self
             if prefix:
                 prefix += "."
@@ -107,10 +107,10 @@ class Module(ABC):
             if module_prefix:
                 module_prefix += "."
             for k, v in members:
-                if v in memo:
+                if id(v) in memo:
                     continue
                 if remove_duplicate:
-                    memo.add(v)
+                    memo.add(id(v))
                 yield module_prefix + k, v
 
     def parameters(self, recurse=True):

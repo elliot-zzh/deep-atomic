@@ -285,7 +285,7 @@ class TestShapeOps:
             _test_unary_grad(t, da.squeeze, axis=axis)
 
     @pytest.mark.parametrize(
-        "repeats_axis",
+        "repeats, axis",
         [
             (2, None),
             (2, 0),
@@ -294,12 +294,10 @@ class TestShapeOps:
         ],
     )
     class TestRepeat:
-        def test_forward(self, unary, repeats_axis):
-            repeats, axis = repeats_axis
+        def test_forward(self, unary, repeats, axis):
             _test_unary_forward(unary, da.repeat, np.repeat, repeats=repeats, axis=axis)
 
-        def test_grad(self, unary, repeats_axis):
-            repeats, axis = repeats_axis
+        def test_grad(self, unary, repeats, axis):
             log_softmax_axis = -1 if axis is None else axis
             _test_unary_grad(
                 unary,
