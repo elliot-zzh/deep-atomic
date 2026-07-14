@@ -1,6 +1,6 @@
 # Deep Atomic
 
-A simple deep learning framework built upon numpy only. Mainly for practice and learning.
+A simple deep learning framework built on NumPy only. Mainly for practice and learning.
 
 ## Usage
 
@@ -32,7 +32,7 @@ a = da.Tensor(
 
 ### Supported Operations
 
-Most essential deep‑learning operations are implemented. For those that also exist in NumPy, we follow NumPy's API conventions.
+Most essential deep-learning operations are implemented. For those that also exist in NumPy, we follow NumPy's API conventions.
 
 ```python
 a, b = da.Tensor(np.random.rand(3, 4)), da.Tensor(np.random.rand(3, 4))
@@ -49,13 +49,13 @@ c = da.log(a)
 c = da.sin(a)
 # the same for cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, arcsinh, arccosh, arctanh
 
-d = a < b                     # element-wise comparison, create a boolean tensor
+d = a < b                     # element-wise comparison, creates a boolean tensor
 e = a <= b
 c = a > b
 c = a >= b
 c = a == b
 c = a != b
-c = da.fmax(a, b)             # IMPORTANT: here da.fmax is identical to da.maximum, for simplicity. same for da.fmin / da.minimum
+c = da.fmax(a, b)             # IMPORTANT: here da.fmax is identical to da.maximum, for simplicity. Same for da.fmin / da.minimum
 c = da.maximum(a, b)
 c = da.fmin(a, b)
 c = da.minimum(a, b)
@@ -68,9 +68,9 @@ c = da.logical_xor(d, e)                     # element-wise xor
 c = d ^ e
 c = da.logical_not(d)                        # element-wise not
 c = ~d
-c = d.all(axis=-1, keepdims=False)           # reduction of and operation. axis=None, keepdims=False by default
-c = d.any(axis=-1, keepdims=False)           # reduction of or operation. axis=None, keepdims=False by default
-c = da.where(d, a, b)                        # return elements chosen from a or b depending on condition
+c = d.all(axis=-1, keepdims=False)           # logical AND reduction. axis=None, keepdims=False by default
+c = d.any(axis=-1, keepdims=False)           # logical OR reduction. axis=None, keepdims=False by default
+c = da.where(d, a, b)                        # returns elements chosen from a or b depending on condition
 
 c = da.topk(a, 2, axis=-1, largest=True)    # same as pytorch. axis=-1, largest=True by default
 
@@ -99,17 +99,17 @@ c = a.tile(2, 2)                              # method‑style alternative
 
 ### Autograd
 
-Autograd is supported via computational graph.
-_Currently only support scalar source points._
+Autograd is supported via a computational graph.
+_Currently only supports scalar source points._
 
 ```python
 x = Tensor(np.random.rand(3, 4)) # requires_grad == True by default
 res = ... # some calculation related to x. res is a **scalar** result
 res.backward()
-print(res.grad) # gradient get!
+print(res.grad) # gradient computed!
 ```
 
-## Todo
+## To Do
 
 - [ ] more basic operations and their autograd
     - [x] topk
@@ -134,8 +134,8 @@ print(res.grad) # gradient get!
 
 ## Development
 
-Recommend manage dependencies using [uv](https://github.com/astral-sh/uv).
-We use [pre-commit](https://github.com/pre-commit/pre-commit) to manage hooks which help to lint and format our code.
+We recommend managing dependencies with [uv](https://github.com/astral-sh/uv).
+We use [pre-commit](https://github.com/pre-commit/pre-commit) to manage hooks that help lint and format our code.
 
 ```bash
 uv sync
