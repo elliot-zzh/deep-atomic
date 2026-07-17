@@ -9,8 +9,8 @@ from .tensor import *
 
 class Optimizer(ABC):
     def __init__(self, params, defaults):
-        params_ = iter(params)
-        first = next(params)
+        params = list(params)
+        first = params[0]
         if isinstance(first, nn.Parameter):
             self.param_groups = [{"params": params, **defaults}]
         elif isinstance(first, dict):
@@ -20,6 +20,11 @@ class Optimizer(ABC):
         else:
             raise ValueError(f"wrong params type. params: {params}")
         self.state = defaultdict(dict)
+
+    def zero_grad(self):
+        for group in self.param_groups:
+            for param in group["params"]:
+                param.grad = np.zeros(param.shape)
 
     # TODO: support closure in the future?
     @abstractmethod
@@ -91,7 +96,7 @@ class SGD(Optimizer):
                 # disable graph construct
                 # we do not set param.requires_grad since it will clear up the grad
                 param._requires_grad = False
-                param -= lr * grad
+                np.subtract(param.to_np(), lr * grad, out=param.to_np())
                 param._requires_grad = True
 
 
@@ -144,9 +149,9 @@ class Adam(Optimizer):
                 t = state["t"]
 
                 if "m_buffer" not in state:
-                    state["m_buffer"] = np.zero(param.shape)
+                    state["m_buffer"] = np.zeros(param.shape)
                 if "v_buffer" not in state:
-                    state["v_buffer"] = np.zero(param.shape)
+                    state["v_buffer"] = np.zeros(param.shape)
 
                 m_buffer = state["m_buffer"]
                 v_buffer = state["v_buffer"]
@@ -156,13 +161,13 @@ class Adam(Optimizer):
                 m_buffer += (1 - beta1) * grad
                 v_buffer += (1 - beta2) * (grad**2)
 
-                lr = lr * (1 - beta2**t) ** 0.5 / (1 - beta1**t)
+                lr_ = lr * (1 - beta2**t) ** 0.5 / (1 - beta1**t)
                 grad = m_buffer / (v_buffer**0.5 + eps)
 
                 # disable graph construct
                 # we do not set param.requires_grad since it will clear up the grad
                 param._requires_grad = False
-                param -= lr * grad
+                np.subtract(param.to_np(), lr_ * grad, out=param.to_np())
                 param._requires_grad = True
 
 
@@ -212,9 +217,9 @@ class AdamW(Optimizer):
                 t = state["t"]
 
                 if "m_buffer" not in state:
-                    state["m_buffer"] = np.zero(param.shape)
+                    state["m_buffer"] = np.zeros(param.shape)
                 if "v_buffer" not in state:
-                    state["v_buffer"] = np.zero(param.shape)
+                    state["v_buffer"] = np.zeros(param.shape)
 
                 m_buffer = state["m_buffer"]
                 v_buffer = state["v_buffer"]
@@ -229,9 +234,9 @@ class AdamW(Optimizer):
                 # disable graph construct
                 # we do not set param.requires_grad since it will clear up the grad
                 param._requires_grad = False
-                param *= 1 - lr * weight_decay
-                lr = lr * (1 - beta2**t) ** 0.5 / (1 - beta1**t)
-                param -= lr * grad
+                np.multiply(param.to_np(), 1 - lr * weight_decay, out=param.to_np())
+                lr_ = lr * (1 - beta2**t) ** 0.5 / (1 - beta1**t)
+                np.subtract(param.to_np(), lr_ * grad, out=param.to_np())
                 param._requires_grad = True
 
 
@@ -240,11 +245,11 @@ class Muon(Optimizer):
     # https://docs.pytorch.org/docs/2.13/generated/torch.optim.Muon.html
 
     @staticmethod
-    def _newton_schulz(G, coefficenits, eps, steps):
+    def _newton_schulz(G, coefficients, eps, steps):
         assert G.ndim == 2
-        a, b, c = coefficenits
+        a, b, c = coefficients
         X = G
-        X /= (X**2) ** 0.5 + eps
+        X /= (X**2).sum() ** 0.5 + eps
         if G.shape[0] > G.shape[1]:
             X = X.T
         for _ in range(steps):
@@ -329,9 +334,9 @@ class Muon(Optimizer):
                     grad = grad.reshape(original_shape)
 
                 param._requires_grad = False
-                param *= 1 - weight_decay
-                param -= (
-                    adjust_lr_fn(lr, original_shape[0], grad.size // original_shape[0])
-                    * grad
+                np.multiply(param.to_np(), 1 - lr * weight_decay, out=param.to_np())
+                lr_ = adjust_lr_fn(
+                    lr, original_shape[0], grad.size // original_shape[0]
                 )
+                np.subtract(param.to_np(), lr_ * grad, out=param.to_np())
                 param._requires_grad = True
