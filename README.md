@@ -109,6 +109,55 @@ res.backward()
 print(res.grad) # gradient computed!
 ```
 
+### Neural Network Modules
+
+Deep Atomic provides a PyTorch-style module system — `Module`, `Parameter`, `Buffer`, and the usual
+traversal methods (`parameters`, `state_dict`, `train`/`eval`, etc.) all work the same way.
+
+```python
+# supported modules
+from deep_atomic.nn import (
+    Sequential, Linear, ReLU, Sigmoid, Tanh, SiLU, GELU, Softmax, LogSoftmax,
+    ModuleList, ParameterList, BufferList,
+    MSELoss, CrossEntropyLoss,
+)
+
+model = Sequential([
+    Linear(128, 64),
+    ReLU(),
+    Linear(64, 10),
+    Softmax(),
+])
+
+criterion = CrossEntropyLoss()   # MSELoss also available
+logits = model(x)                # (batch, num_classes)
+loss = criterion(logits, labels)
+loss.backward()
+```
+
+### Optimizers
+
+Optimizers basically follow PyTorch's API. Currently `SGD`, `Adam`/`AdamW`, and `Muon` are supported.
+
+```python
+from deep_atomic.optim import SGD, Adam, AdamW, Muon
+
+opt_sgd  = SGD(model.parameters(),   lr=0.01, momentum=0.9)
+opt_adam = Adam(model.parameters(),  lr=1e-3)
+opt_adamw = AdamW(model.parameters(), lr=1e-3)
+opt_muon = Muon(model.parameters(), lr=0.001)
+
+opt = opt_adam
+for epoch in range(epochs):
+    for x_batch, y_batch in loader:
+        opt.zero_grad()
+        loss = criterion(model(x_batch), y_batch)
+        loss.backward()
+        opt.step()
+```
+
+
+
 ## To Do
 
 - [ ] more basic operations and their autograd
