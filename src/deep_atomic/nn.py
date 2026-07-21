@@ -313,7 +313,8 @@ class Linear(Module):
 
 
 class Sequential(Module):
-    def __init__(self, module_list):
+    # TODO: support giving an OrderedDict
+    def __init__(self, *module_list):
         super().__init__()
         self.module_list = ModuleList(module_list)
 
