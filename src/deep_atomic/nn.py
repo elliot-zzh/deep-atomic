@@ -7,10 +7,6 @@ from .op import *
 from .tensor import *
 
 
-def init_param(*shape):
-    return Tensor(np.random.randn(*shape))
-
-
 class Parameter(Tensor):
     pass
 
@@ -299,9 +295,14 @@ class BufferList(Module):
 class Linear(Module):
     def __init__(self, in_features: int, out_features: int, bias=True):
         super().__init__()
-        self.weight = Parameter(init_param(in_features, out_features))
+        bound = in_features ** (-0.5)  # for initialization
+        self.weight = Parameter(
+            Tensor(np.random.uniform(-bound, bound, size=(in_features, out_features)))
+        )
         if bias:
-            self.bias = Parameter(init_param(out_features))
+            self.bias = Parameter(
+                Tensor(np.random.uniform(-bound, bound, size=(out_features,)))
+            )
         else:
             self.bias = None
 

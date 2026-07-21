@@ -122,12 +122,12 @@ from deep_atomic.nn import (
     MSELoss, CrossEntropyLoss,
 )
 
-model = Sequential([
+model = Sequential(
     Linear(128, 64),
     ReLU(),
     Linear(64, 10),
     Softmax(),
-])
+)
 
 criterion = CrossEntropyLoss()   # MSELoss also available
 logits = model(x)                # (batch, num_classes)

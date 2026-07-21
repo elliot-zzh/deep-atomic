@@ -541,7 +541,7 @@ def _softmax_np(z, axis=-1):
 class TestSequentialWithActivations:
     def test_forward(self, act_cls, act_np, bias):
         lin = Linear(3, 5, bias=bias)
-        seq = Sequential([lin, act_cls()])
+        seq = Sequential(lin, act_cls())
 
         x_np = np.random.randn(2, 3).astype(np.float64)
         x = da.Tensor(x_np)
@@ -556,7 +556,7 @@ class TestSequentialWithActivations:
 
     def test_grad(self, act_cls, act_np, bias):
         lin = Linear(3, 5, bias=bias)
-        seq = Sequential([lin, act_cls()])
+        seq = Sequential(lin, act_cls())
         lossf = MSELoss()
 
         x_np = np.random.randn(2, 3).astype(np.float64)
